@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #0f1210;
-  --bg-elevated: #151915;
-  --border: #232821;
-  --text: #edefea;
-  --text-dim: #8a9089;
-  --accent: #7cffb2;
-  --danger: #ff8a7c;
+  --bg: #0a0e0c;
+  --panel: #101613;
+  --panel-hover: #141d18;
+  --border: #1e2a22;
+  --border-bright: #2a3a30;
+  --text: #e8ede9;
+  --text-dim: #6b7a70;
+  --text-faint: #47534b;
+  --accent: #4ade80;
+  --accent-dim: #22633f;
+  --cyan: #22d3ee;
+  --danger: #f87171;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 html, body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-inter), -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
-::selection {
-  background: var(--accent);
-  color: var(--bg);
+.mono { font-family: var(--font-mono), monospace; }
+
+::selection { background: var(--accent); color: var(--bg); }
+
+/* Grid de radar no fundo */
+.radar-grid {
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: -1px -1px;
+  opacity: 0.25;
 }
+
+/* Varredura de radar */
+@keyframes sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.radar-sweep {
+  animation: sweep 2s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+.pulse-ring { animation: pulse-ring 1.8s ease-out infinite; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fade-up 0.4s ease-out backwards; }
+
+/* Scrollbar discreta */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+input::placeholder { color: var(--text-faint); }
