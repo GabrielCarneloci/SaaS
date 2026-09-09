@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0f1210;
+  --bg-elevated: #151915;
+  --border: #232821;
+  --text: #edefea;
+  --text-dim: #8a9089;
+  --accent: #7cffb2;
+  --danger: #ff8a7c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
