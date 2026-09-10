@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, Instrument_Serif } from "next/font/google";
+import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 
 const corpo = Inter({ subsets: ["latin"], variable: "--font-corpo" });
-const serifa = Instrument_Serif({ subsets: ["latin"], weight: "400", variable: "--font-serifa" });
+const destaque = Outfit({ subsets: ["latin"], weight: ["600", "700"], variable: "--font-destaque" });
 
 export const metadata: Metadata = {
   title: "Radar de Leads",
@@ -22,10 +22,8 @@ const scriptTema = `
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${corpo.variable} ${serifa.variable}`} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: scriptTema }} />
-      </head>
+    <html lang="pt-BR" className={`${corpo.variable} ${destaque.variable}`} suppressHydrationWarning>
+      <head><script dangerouslySetInnerHTML={{ __html: scriptTema }} /></head>
       <body>{children}</body>
     </html>
   );
