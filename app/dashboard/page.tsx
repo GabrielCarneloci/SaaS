@@ -377,13 +377,13 @@ export default function Dashboard() {
   const visitante = logado === false;
 
   const cores = {
-    violeta: tema === 'escuro' ? '#8b6dff' : '#6c4cf1',
-    coral: tema === 'escuro' ? '#ff6b93' : '#ff4d7d',
-    turquesa: tema === 'escuro' ? '#2ad9c8' : '#00c2b2',
-    ambar: tema === 'escuro' ? '#ffb246' : '#ff9f1c',
-    dim: tema === 'escuro' ? '#736d94' : '#918cad',
-    superficie: tema === 'escuro' ? '#16122a' : '#ffffff',
-    linha: tema === 'escuro' ? '#262040' : '#e6e4f2',
+    violeta: tema === 'escuro' ? '#8b84ff' : '#635bff',
+    coral: tema === 'escuro' ? '#f472b6' : '#ec4899',
+    turquesa: tema === 'escuro' ? '#34d399' : '#10b981',
+    ambar: tema === 'escuro' ? '#fbbf24' : '#f59e0b',
+    dim: tema === 'escuro' ? '#6f6d84' : '#8f8e9c',
+    superficie: tema === 'escuro' ? '#15151e' : '#ffffff',
+    linha: tema === 'escuro' ? '#232332' : '#eae8e6',
   };
   const paleta = [cores.violeta, cores.coral, cores.turquesa, cores.ambar, cores.dim];
 
@@ -455,7 +455,7 @@ export default function Dashboard() {
             </button>
 
             {erro && (
-              <p className="text-[13px] px-3 py-2.5 rounded-xl" style={{ background: 'var(--danger-lav)', color: 'var(--danger)' }}>
+              <p className="text-[13px] px-3 py-2.5 rounded-xl" style={{ background: 'var(--perigo-wash)', color: 'var(--perigo)' }}>
                 {erro}
               </p>
             )}
@@ -469,14 +469,14 @@ export default function Dashboard() {
               <span className="text-[13px]" style={{ color: 'var(--ink-2)' }}>
                 {contatados} de {leads.length} contatadas
               </span>
-              <span className="destaque text-[19px] leading-none" style={{ color: 'var(--turquesa)' }}>
+              <span className="destaque text-[19px] leading-none" style={{ color: 'var(--ok)' }}>
                 {progresso}%
               </span>
             </div>
             <div className="h-2 rounded-full overflow-hidden" style={{ background: 'var(--surface-2)' }}>
               <div
                 className="h-full rounded-full transition-all"
-                style={{ width: `${progresso}%`, background: 'linear-gradient(90deg, var(--turquesa), var(--violeta))' }}
+                style={{ width: `${progresso}%`, background: 'linear-gradient(90deg, var(--ok), var(--marca-1))' }}
               />
             </div>
           </div>
@@ -493,7 +493,7 @@ export default function Dashboard() {
                   onClick={() => repetirBusca(h)}
                   className="w-full text-left px-2.5 py-2 rounded-lg text-[13px] flex items-center justify-between gap-2 transition-colors"
                   style={{ color: 'var(--ink-2)' }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--violeta-lav)'; e.currentTarget.style.color = 'var(--violeta)'; }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--marca-wash)'; e.currentTarget.style.color = 'var(--marca-1)'; }}
                   onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--ink-2)'; }}
                 >
                   <span className="truncate">{h.nicho}, {h.localidade}</span>
@@ -509,7 +509,7 @@ export default function Dashboard() {
           {logado ? (
             <>
               {ehAdmin && (
-                <a href="/admin" className="block text-[13px] font-medium mb-2.5" style={{ color: 'var(--violeta)' }}>
+                <a href="/admin" className="block text-[13px] font-medium mb-2.5" style={{ color: 'var(--marca-1)' }}>
                   Painel do administrador
                 </a>
               )}
@@ -537,10 +537,10 @@ export default function Dashboard() {
         {/* números grandes */}
         {leads.length > 0 && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-            <Numero rotulo="empresas sem site" valor={leads.length} cor="var(--violeta)" />
-            <Numero rotulo="ainda pendentes" valor={leads.length - contatados} cor="var(--coral)" />
-            <Numero rotulo="já contatadas" valor={contatados} cor="var(--turquesa)" />
-            <Numero rotulo="nota média" valor={mediaAval} cor="var(--ambar)" />
+            <Numero rotulo="empresas sem site" valor={leads.length} cor="var(--marca-1)" icone="🎯" />
+            <Numero rotulo="ainda pendentes" valor={leads.length - contatados} cor="var(--marca-3)" icone="⏳" />
+            <Numero rotulo="já contatadas" valor={contatados} cor="var(--ok)" icone="✅" />
+            <Numero rotulo="nota média" valor={mediaAval} cor="var(--alerta)" icone="⭐" />
           </div>
         )}
 
@@ -636,7 +636,7 @@ export default function Dashboard() {
             )}
             <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
               <button onClick={exportarCSV} className="acao-discreta">Baixar CSV</button>
-              <button onClick={() => setConfirmarLimpar(true)} className="acao-discreta" style={{ color: 'var(--danger)' }}>
+              <button onClick={() => setConfirmarLimpar(true)} className="acao-discreta" style={{ color: 'var(--perigo)' }}>
                 Apagar tudo
               </button>
             </div>
@@ -657,16 +657,29 @@ export default function Dashboard() {
 
         {/* resultados */}
         {leads.length === 0 && !carregando ? (
-          <div className="cartao p-10 text-center max-w-[560px] mx-auto mt-8">
-            <p className="destaque text-[26px] leading-tight mb-2">
-              <span className="gradiente">Toda empresa sem site</span>
-              <br />
-              <span style={{ color: 'var(--ink)' }}>é um cliente esperando</span>
-            </p>
-            <p className="text-[14px] leading-relaxed" style={{ color: 'var(--ink-2)' }}>
-              Escolha um nicho e uma cidade ao lado. Trazemos só quem ainda não tem
-              presença na internet, com telefone e endereço.
-            </p>
+          <div className="relative overflow-hidden rounded-[28px] p-8 sm:p-14 text-center max-w-[720px] mx-auto mt-4 sm:mt-10 surge"
+            style={{ background: 'var(--surface)', border: '1px solid var(--line)', boxShadow: 'var(--s3)' }}>
+            <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full opacity-40" style={{ background: 'var(--grad-marca)', filter: 'blur(60px)' }} />
+            <div className="absolute -bottom-24 -left-16 w-52 h-52 rounded-full opacity-30" style={{ background: 'var(--marca-2)', filter: 'blur(70px)' }} />
+
+            <div className="relative">
+              <span className="etiqueta mb-4 inline-flex">🔎 dados direto do Google Maps</span>
+              <p className="destaque text-[30px] sm:text-[42px] leading-[1.05] mb-4">
+                <span className="grad-texto">Encontre quem ainda</span>
+                <br />
+                <span style={{ color: 'var(--ink)' }}>não tem site</span>
+              </p>
+              <p className="text-[14.5px] sm:text-[15.5px] leading-relaxed max-w-[440px] mx-auto mb-8" style={{ color: 'var(--ink-2)' }}>
+                Escolha um nicho e uma cidade ao lado. A gente varre o Google Maps e te entrega
+                só as empresas que ainda não têm presença online — com telefone, endereço e nota.
+              </p>
+
+              <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-[480px] mx-auto">
+                <BeneficioMini icone="📍" texto="Endereço real" />
+                <BeneficioMini icone="📞" texto="Telefone direto" />
+                <BeneficioMini icone="✨" texto="Mensagem por IA" />
+              </div>
+            </div>
           </div>
         ) : carregando && leads.length === 0 ? (
           <div className="cartao p-10 text-center max-w-[420px] mx-auto mt-8">
@@ -693,26 +706,22 @@ export default function Dashboard() {
                 >
                   <div className={`faixa ${lead.contatado ? 'faixa-feito' : ''}`} />
                   <div className="p-4">
-                    <div className="flex items-start justify-between gap-2 mb-1">
-                      <span className="destaque text-[15px] leading-snug" style={{ color: 'var(--ink)' }}>
-                        {lead.nome}
-                      </span>
-                      {lead.avaliacao && (
-                        <span
-                          className="shrink-0 text-[12px] font-semibold px-2 py-0.5 rounded-full"
-                          style={{ background: 'var(--ambar)', color: '#fff' }}
-                        >
-                          {lead.avaliacao}
+                    <div className="flex items-start gap-3 mb-2.5">
+                      <AvatarEmpresa nome={lead.nome} />
+                      <div className="min-w-0 flex-1">
+                        <span className="destaque text-[14.5px] leading-snug block truncate" style={{ color: 'var(--ink)' }}>
+                          {lead.nome}
                         </span>
-                      )}
+                        {lead.categoria && (
+                          <p className="text-[11.5px] truncate" style={{ color: 'var(--ink-3)' }}>{lead.categoria}</p>
+                        )}
+                      </div>
                     </div>
-                    {lead.categoria && (
-                      <p className="text-[12px] mb-1.5" style={{ color: 'var(--ink-3)' }}>{lead.categoria}</p>
-                    )}
-                    <p className="text-[12.5px] leading-snug mb-2.5" style={{ color: 'var(--ink-2)' }}>
+                    {lead.avaliacao && <Estrelas nota={lead.avaliacao} />}
+                    <p className="text-[12.5px] leading-snug mb-2.5 mt-2" style={{ color: 'var(--ink-2)' }}>
                       {lead.endereco}
                     </p>
-                    <p className="text-[13.5px] font-semibold" style={{ color: 'var(--violeta)' }}>
+                    <p className="text-[13.5px] font-semibold" style={{ color: 'var(--marca-1)' }}>
                       {lead.telefone}
                     </p>
                     {((lead.tags ?? []).length > 0 || lead.notas) && (
@@ -838,13 +847,13 @@ export default function Dashboard() {
               </div>
 
               {/* ===== Inteligência artificial ===== */}
-              <div className="p-4 rounded-2xl mb-5" style={{ background: 'var(--violeta-lav)', border: '1.5px solid var(--line)' }}>
+              <div className="p-4 rounded-2xl mb-5" style={{ background: 'var(--marca-wash)', border: '1.5px solid var(--line)' }}>
                 <div className="flex items-center justify-between mb-2.5">
-                  <span className="text-[12.5px] font-semibold flex items-center gap-1.5" style={{ color: 'var(--violeta)' }}>
+                  <span className="text-[12.5px] font-semibold flex items-center gap-1.5" style={{ color: 'var(--marca-1)' }}>
                     <IconeCentelha /> Gerado com IA
                   </span>
                   {(leadAtual.mensagem_ia || leadAtual.resumo_ia) && (
-                    <button onClick={() => gerarComIA(true)} disabled={gerandoIA} className="text-[11.5px] font-medium" style={{ color: 'var(--violeta)' }}>
+                    <button onClick={() => gerarComIA(true)} disabled={gerandoIA} className="text-[11.5px] font-medium" style={{ color: 'var(--marca-1)' }}>
                       {gerandoIA ? 'Gerando…' : 'Gerar de novo'}
                     </button>
                   )}
@@ -919,7 +928,7 @@ export default function Dashboard() {
       {aviso && (
         <div
           className="fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2.5 rounded-xl text-[13px] font-medium z-50"
-          style={{ background: 'var(--violeta)', color: '#fff', boxShadow: 'var(--sombra-cor)' }}
+          style={{ background: 'var(--marca-1)', color: '#fff', boxShadow: 'var(--sombra-cor)' }}
           role="status"
         >
           {aviso}
@@ -943,7 +952,7 @@ export default function Dashboard() {
               <button
                 onClick={limparTudo}
                 className="acao-discreta"
-                style={{ background: 'var(--danger)', color: '#fff', borderColor: 'var(--danger)' }}
+                style={{ background: 'var(--perigo)', color: '#fff', borderColor: 'var(--perigo)' }}
               >
                 Apagar tudo
               </button>
@@ -957,10 +966,60 @@ export default function Dashboard() {
 
 /* ---------- peças ---------- */
 
-function Numero({ rotulo, valor, cor }: { rotulo: string; valor: number | string; cor: string }) {
+function AvatarEmpresa({ nome }: { nome: string }) {
+  // gera uma cor consistente a partir do nome, dentro da paleta da marca
+  const paletaAvatar = [
+    'linear-gradient(135deg, #635bff, #a855f7)',
+    'linear-gradient(135deg, #a855f7, #ec4899)',
+    'linear-gradient(135deg, #ec4899, #f59e0b)',
+    'linear-gradient(135deg, #10b981, #635bff)',
+    'linear-gradient(135deg, #f59e0b, #ec4899)',
+  ];
+  let soma = 0;
+  for (let i = 0; i < nome.length; i++) soma += nome.charCodeAt(i);
+  const fundo = paletaAvatar[soma % paletaAvatar.length];
+  const inicial = nome.trim().charAt(0).toUpperCase() || '?';
+
+  return (
+    <div
+      className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center destaque text-[15px]"
+      style={{ background: fundo, color: '#fff' }}
+    >
+      {inicial}
+    </div>
+  );
+}
+
+function Estrelas({ nota }: { nota: number }) {
+  const cheias = Math.round(nota);
+  return (
+    <div className="flex items-center gap-1">
+      <div className="flex" style={{ letterSpacing: '-1px' }}>
+        {[1, 2, 3, 4, 5].map((n) => (
+          <span key={n} style={{ color: n <= cheias ? 'var(--alerta)' : 'var(--line-2)', fontSize: 12 }}>★</span>
+        ))}
+      </div>
+      <span className="text-[11.5px] font-medium" style={{ color: 'var(--ink-3)' }}>{nota}</span>
+    </div>
+  );
+}
+
+function BeneficioMini({ icone, texto }: { icone: string; texto: string }) {
+  return (
+    <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl" style={{ background: 'var(--surface-2)' }}>
+      <span style={{ fontSize: 18 }}>{icone}</span>
+      <span className="text-[11px] font-medium leading-tight text-center" style={{ color: 'var(--ink-2)' }}>{texto}</span>
+    </div>
+  );
+}
+
+function Numero({ rotulo, valor, cor, icone }: { rotulo: string; valor: number | string; cor: string; icone?: string }) {
   return (
     <div className="cartao p-4 overflow-hidden min-w-0">
-      <div className="destaque text-[30px] leading-none mb-1" style={{ color: cor }}>{valor}</div>
+      <div className="flex items-center gap-2 mb-1">
+        {icone && <span style={{ fontSize: 15 }}>{icone}</span>}
+        <div className="destaque text-[26px] sm:text-[30px] leading-none" style={{ color: cor }}>{valor}</div>
+      </div>
       <div className="text-[12.5px]" style={{ color: 'var(--ink-2)' }}>{rotulo}</div>
     </div>
   );
@@ -972,7 +1031,7 @@ function Dado({ rotulo, valor, destaque }: { rotulo: string; valor: string; dest
       <dt className="text-[12px] mb-0.5" style={{ color: 'var(--ink-3)' }}>{rotulo}</dt>
       <dd
         className={destaque ? 'text-[15px] font-semibold' : 'text-[13.5px]'}
-        style={{ color: destaque ? 'var(--violeta)' : 'var(--ink)' }}
+        style={{ color: destaque ? 'var(--marca-1)' : 'var(--ink)' }}
       >
         {valor}
       </dd>
