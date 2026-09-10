@@ -1,47 +1,43 @@
 @import "tailwindcss";
 
-/* ============================================================
-   Tema claro (padrão) — carta náutica em papel
-   ============================================================ */
+/* ===== Claro: papel frio, latão ===== */
 :root {
-  --canvas: #f4f6f5;
+  --canvas: #eceeed;
   --surface: #ffffff;
-  --surface-2: #eceff0;
-  --ink: #111614;
-  --ink-2: #4a5552;
-  --ink-3: #8a9491;
-  --line: #e0e5e3;
-  --line-2: #cdd5d2;
-  --accent: #0f5c52;
-  --accent-ink: #ffffff;
-  --accent-wash: #e6f0ed;
-  --signal: #a8611a;
-  --signal-wash: #f8efe3;
-  --danger: #a02a22;
-  --danger-wash: #f9eae8;
-  --map-filter: none;
+  --surface-2: #f4f5f4;
+  --veu: rgba(255,255,255,0.82);
+  --ink: #16181a;
+  --ink-2: #55595c;
+  --ink-3: #8d9295;
+  --line: #e2e4e3;
+  --line-2: #cfd2d1;
+  --brass: #7d5f22;
+  --brass-ink: #ffffff;
+  --brass-wash: #f3ecdd;
+  --danger: #9c2f24;
+  --danger-wash: #f8ebe9;
+  --sombra: 0 1px 2px rgba(20,22,24,.04), 0 8px 24px -8px rgba(20,22,24,.14);
+  --sombra-alta: 0 2px 4px rgba(20,22,24,.06), 0 24px 56px -16px rgba(20,22,24,.24);
 }
 
-/* ============================================================
-   Tema escuro
-   ============================================================ */
+/* ===== Escuro: grafite, latão claro ===== */
 [data-tema="escuro"] {
-  --canvas: #0e1211;
-  --surface: #161b1a;
-  --surface-2: #1d2422;
-  --ink: #e9eeec;
-  --ink-2: #a3aead;
-  --ink-3: #6d7a77;
-  --line: #242b29;
-  --line-2: #313a37;
-  --accent: #5fbfa9;
-  --accent-ink: #08120f;
-  --accent-wash: #16302a;
-  --signal: #d69a5c;
-  --signal-wash: #2c2318;
-  --danger: #e08074;
-  --danger-wash: #2e1a18;
-  --map-filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.9);
+  --canvas: #131412;
+  --surface: #1c1e1c;
+  --surface-2: #242623;
+  --veu: rgba(28,30,28,0.86);
+  --ink: #eceeea;
+  --ink-2: #a6aaa5;
+  --ink-3: #71766f;
+  --line: #2b2e2a;
+  --line-2: #3a3e39;
+  --brass: #c9a45c;
+  --brass-ink: #17180f;
+  --brass-wash: #2b2517;
+  --danger: #d8837a;
+  --danger-wash: #2d1c1a;
+  --sombra: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -8px rgba(0,0,0,.6);
+  --sombra-alta: 0 2px 4px rgba(0,0,0,.5), 0 24px 56px -16px rgba(0,0,0,.7);
 }
 
 * { box-sizing: border-box; }
@@ -49,142 +45,154 @@
 html, body {
   background: var(--canvas);
   color: var(--ink);
-  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
-  margin: 0;
-  padding: 0;
+  font-family: var(--font-corpo), -apple-system, BlinkMacSystemFont, sans-serif;
+  margin: 0; padding: 0;
   -webkit-font-smoothing: antialiased;
-  font-feature-settings: "tnum" 1;
+  font-feature-settings: "tnum" 1, "cv05" 1;
 }
 
-.display {
-  font-family: var(--font-display), Georgia, serif;
+.serifa {
+  font-family: var(--font-serifa), Georgia, serif;
   font-weight: 400;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
-::selection { background: var(--accent-wash); color: var(--ink); }
+::selection { background: var(--brass-wash); color: var(--ink); }
 
-/* Foco visível para navegação por teclado */
 :focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--brass);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* Papel milimetrado bem discreto, só no rail */
-.papel {
-  background-image:
-    linear-gradient(var(--line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--line) 1px, transparent 1px);
-  background-size: 28px 28px;
-  opacity: 0.5;
-}
-
-::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 5px; }
+::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
 
 input::placeholder, textarea::placeholder { color: var(--ink-3); }
 
-/* ============================================================
-   Controles
-   ============================================================ */
+/* ===== Painel flutuante: a peça estrutural do layout ===== */
+.flutua {
+  background: var(--veu);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--sombra);
+}
+.flutua-alta { box-shadow: var(--sombra-alta); }
+
+/* ===== Controles ===== */
 .campo {
   width: 100%;
-  padding: 0.6rem 0.75rem;
-  border-radius: 6px;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
   font-size: 0.875rem;
   font-family: inherit;
   background: var(--surface);
   border: 1px solid var(--line-2);
   color: var(--ink);
   outline: none;
-  transition: border-color 0.14s, box-shadow 0.14s;
+  transition: border-color .14s, box-shadow .14s;
 }
-.campo:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-wash);
-}
+.campo:focus { border-color: var(--brass); box-shadow: 0 0 0 3px var(--brass-wash); }
 .campo:disabled { background: var(--surface-2); color: var(--ink-3); cursor: not-allowed; }
 
 .acao {
-  width: 100%;
-  padding: 0.7rem;
-  border-radius: 6px;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 500;
   font-family: inherit;
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--ink);
+  color: var(--canvas);
   border: none;
   cursor: pointer;
-  transition: filter 0.14s;
+  transition: opacity .14s;
+  white-space: nowrap;
 }
-.acao:hover:not(:disabled) { filter: brightness(1.08); }
-.acao:disabled { opacity: 0.5; cursor: not-allowed; }
+.acao:hover:not(:disabled) { opacity: .86; }
+.acao:disabled { opacity: .45; cursor: not-allowed; }
+
+.acao-latao { background: var(--brass); color: var(--brass-ink); }
 
 .acao-discreta {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 0.4rem 0.7rem;
-  border-radius: 6px;
+  padding: 0.38rem 0.65rem;
+  border-radius: 7px;
   font-size: 0.8125rem;
   font-family: inherit;
   background: transparent;
   border: 1px solid var(--line-2);
   color: var(--ink-2);
   cursor: pointer;
-  transition: background 0.14s, border-color 0.14s, color 0.14s;
+  transition: background .14s, color .14s, border-color .14s;
+  white-space: nowrap;
+  text-decoration: none;
 }
-.acao-discreta:hover:not(:disabled) { background: var(--surface-2); color: var(--ink); }
-.acao-discreta:disabled { opacity: 0.45; cursor: not-allowed; }
+.acao-discreta:hover:not(:disabled) { background: var(--surface-2); color: var(--ink); border-color: var(--ink-3); }
+.acao-discreta:disabled { opacity: .4; cursor: not-allowed; }
+.acao-discreta[data-ativo="1"] { background: var(--brass); color: var(--brass-ink); border-color: var(--brass); }
 
 .etiqueta {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 7px;
+  padding: 1px 6px;
   border-radius: 4px;
   font-size: 0.6875rem;
-  background: var(--surface-2);
-  color: var(--ink-2);
-  border: 1px solid var(--line);
+  background: var(--brass-wash);
+  color: var(--brass);
+  border: 1px solid transparent;
 }
 
-/* Linha do ledger */
-.linha {
-  display: grid;
-  align-items: center;
+/* ===== Registro (linha da lista) ===== */
+.registro {
+  display: block;
   width: 100%;
   text-align: left;
-  padding: 0.7rem 1.25rem;
-  border-bottom: 1px solid var(--line);
+  padding: 0.6rem 0.85rem;
+  border-radius: 9px;
   background: transparent;
-  border-left: 2px solid transparent;
+  border: 1px solid transparent;
   cursor: pointer;
   font-family: inherit;
-  transition: background 0.12s;
+  transition: background .12s, border-color .12s;
 }
-.linha:hover { background: var(--surface-2); }
-.linha[data-sel="1"] {
+.registro:hover { background: var(--surface-2); }
+.registro[data-sel="1"] {
   background: var(--surface);
-  border-left-color: var(--accent);
+  border-color: var(--line-2);
+  box-shadow: var(--sombra);
 }
 
-/* Mapa: adapta os tiles ao tema escuro */
-.mapa-tema { filter: var(--map-filter); }
-.leaflet-container { background: var(--surface-2); font-family: inherit; }
-.leaflet-control-attribution { font-size: 9px; }
+/* ===== Folha deslizante do detalhe ===== */
+@keyframes entra-folha {
+  from { opacity: 0; transform: translateX(14px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.folha { animation: entra-folha .22s cubic-bezier(.22,1,.36,1); }
+
+/* ===== Mapa ===== */
+.leaflet-container { background: var(--canvas); font-family: inherit; }
+.leaflet-control-attribution {
+  font-size: 9px;
+  background: var(--veu) !important;
+  color: var(--ink-3) !important;
+  border-radius: 5px 0 0 0;
+}
+.leaflet-control-attribution a { color: var(--ink-2) !important; }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
 
-/* Cartão usado nas telas de conta */
+/* ===== Cartão das telas de conta ===== */
 .card {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 14px;
+  box-shadow: var(--sombra);
 }

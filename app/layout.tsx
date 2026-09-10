@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
-import { Inter, Newsreader } from "next/font/google";
+import { Inter, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const newsreader = Newsreader({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-display" });
+const corpo = Inter({ subsets: ["latin"], variable: "--font-corpo" });
+const serifa = Instrument_Serif({ subsets: ["latin"], weight: "400", variable: "--font-serifa" });
 
 export const metadata: Metadata = {
   title: "Radar de Leads",
-  description: "Encontre empresas locais sem site no Google Maps",
+  description: "Encontre empresas locais que ainda não têm site",
 };
 
-// Aplica o tema salvo antes da primeira pintura, evitando piscar
 const scriptTema = `
 (function(){
   try {
@@ -23,7 +22,7 @@ const scriptTema = `
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${newsreader.variable}`} suppressHydrationWarning>
+    <html lang="pt-BR" className={`${corpo.variable} ${serifa.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: scriptTema }} />
       </head>

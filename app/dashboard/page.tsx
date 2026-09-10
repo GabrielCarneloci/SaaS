@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 
 const MapaLeads = dynamic(() => import('@/components/MapaLeads'), {
   ssr: false,
-  loading: () => <div className="w-full h-full" style={{ background: 'var(--surface-2)' }} />,
+  loading: () => <div className="w-full h-full" style={{ background: 'var(--canvas)' }} />,
 });
 
 interface Lead {
@@ -45,6 +45,7 @@ export default function Dashboard() {
   const [logado, setLogado] = useState<boolean | null>(null);
   const [emailUsuario, setEmailUsuario] = useState('');
   const [ehAdmin, setEhAdmin] = useState(false);
+  const [menuConta, setMenuConta] = useState(false);
 
   const [nicho, setNicho] = useState('');
   const [uf, setUf] = useState('');
@@ -66,13 +67,13 @@ export default function Dashboard() {
   const [ordenar, setOrdenar] = useState<Ordenacao>('recentes');
   const [soNaoContatados, setSoNaoContatados] = useState(false);
   const [confirmarLimpar, setConfirmarLimpar] = useState(false);
-  const [verMapa, setVerMapa] = useState(true);
+  const [listaAberta, setListaAberta] = useState(true);
 
   const [rascunhoNota, setRascunhoNota] = useState('');
   const [rascunhoTags, setRascunhoTags] = useState('');
   const [salvandoNota, setSalvandoNota] = useState(false);
 
-  /* ---------------- carregamento inicial ---------------- */
+  /* ---------- inicialização ---------- */
 
   useEffect(() => {
     const salvo = (localStorage.getItem('tema') as 'claro' | 'escuro') || null;
@@ -148,7 +149,7 @@ export default function Dashboard() {
     } catch {}
   }
 
-  /* ---------------- ações ---------------- */
+  /* ---------- ações ---------- */
 
   async function buscarLeads() {
     if (!nicho || !localidade) {
@@ -181,6 +182,7 @@ export default function Dashboard() {
           }))
         );
       }
+      setListaAberta(true);
     } catch (e: any) {
       setErro(e.message || 'A busca não foi concluída. Tente de novo.');
     } finally {
@@ -271,7 +273,7 @@ export default function Dashboard() {
     ].filter(Boolean).join('\n');
   }
 
-  /* ---------------- derivados ---------------- */
+  /* ---------- derivados ---------- */
 
   const visiveis = useMemo(() => {
     let r = [...leads];
@@ -323,404 +325,419 @@ export default function Dashboard() {
   );
 
   const escolherLead = useCallback((id: number) => setSelecionado(id), []);
-
-  /* ---------------- render ---------------- */
+  const visitante = logado === false;
 
   return (
-    <div className="h-screen flex overflow-hidden" style={{ background: 'var(--canvas)' }}>
+    <div className="h-screen w-screen relative overflow-hidden" style={{ background: 'var(--canvas)' }}>
 
-      {/* ========== RAIL DE BUSCA ========== */}
-      <aside
-        className="w-[300px] shrink-0 hidden lg:flex flex-col relative"
-        style={{ background: 'var(--surface)', borderRight: '1px solid var(--line)' }}
-      >
-        <div className="absolute inset-x-0 top-0 h-40 papel pointer-events-none" />
+      {/* ===== MAPA: ocupa a tela toda, é o fundo de tudo ===== */}
+      <div className="absolute inset-0">
+        <MapaLeads
+          pontos={comCoordenadas}
+          selecionado={selecionado}
+          aoSelecionar={escolherLead}
+          tema={tema}
+          aberturaLateral={listaAberta ? 400 : 60}
+        />
+      </div>
 
-        <div className="relative px-6 pt-6 pb-5">
-          <div className="flex items-center justify-between mb-6">
-            <span className="display text-[19px]" style={{ color: 'var(--ink)' }}>Radar</span>
-            <button
-              onClick={alternarTema}
-              className="acao-discreta"
-              style={{ padding: '5px 8px' }}
-              aria-label={tema === 'claro' ? 'Usar tema escuro' : 'Usar tema claro'}
-              title={tema === 'claro' ? 'Usar tema escuro' : 'Usar tema claro'}
-            >
-              {tema === 'claro' ? <IconeLua /> : <IconeSol />}
-            </button>
-          </div>
+      {/* ===== BARRA DE BUSCA FLUTUANTE ===== */}
+      <div className="absolute top-4 left-4 right-4 z-20 flex items-start gap-3 pointer-events-none">
+        <div className="flutua flutua-alta p-2 flex items-center gap-2 flex-wrap pointer-events-auto">
+          <span className="serifa text-[21px] px-2.5 leading-none" style={{ color: 'var(--ink)' }}>
+            Radar
+          </span>
+          <span className="w-px h-6" style={{ background: 'var(--line)' }} />
 
-          <div className="space-y-3">
-            <div>
-              <label htmlFor="nicho" className="block text-[13px] mb-1.5" style={{ color: 'var(--ink-2)' }}>
-                Nicho
-              </label>
-              <input
-                id="nicho"
-                className="campo"
-                placeholder="barbearia, dentista, pizzaria"
-                value={nicho}
-                onChange={(e) => setNicho(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && buscarLeads()}
-              />
-            </div>
+          <input
+            className="campo w-[150px]"
+            placeholder="Nicho"
+            value={nicho}
+            onChange={(e) => setNicho(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && buscarLeads()}
+            aria-label="Nicho"
+          />
+          <select
+            className="campo w-[110px]"
+            value={uf}
+            onChange={(e) => selecionarUf(e.target.value)}
+            aria-label="Estado"
+          >
+            <option value="">Estado</option>
+            {estados.map((e) => <option key={e.sigla} value={e.sigla}>{e.sigla}</option>)}
+          </select>
+          <select
+            className="campo w-[170px]"
+            value={cidade}
+            onChange={(e) => setCidade(e.target.value)}
+            disabled={!uf || carregandoCidades}
+            aria-label="Cidade"
+          >
+            <option value="">
+              {carregandoCidades ? 'Carregando' : uf ? 'Cidade' : 'Escolha o estado'}
+            </option>
+            {cidades.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
 
-            <div>
-              <label htmlFor="uf" className="block text-[13px] mb-1.5" style={{ color: 'var(--ink-2)' }}>
-                Estado
-              </label>
-              <select id="uf" className="campo" value={uf} onChange={(e) => selecionarUf(e.target.value)}>
-                <option value="">Escolha um estado</option>
-                {estados.map((e) => <option key={e.sigla} value={e.sigla}>{e.nome}</option>)}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="cidade" className="block text-[13px] mb-1.5" style={{ color: 'var(--ink-2)' }}>
-                Cidade
-              </label>
-              <select
-                id="cidade"
-                className="campo"
-                value={cidade}
-                onChange={(e) => setCidade(e.target.value)}
-                disabled={!uf || carregandoCidades}
-              >
-                <option value="">
-                  {carregandoCidades ? 'Carregando cidades' : uf ? 'Escolha uma cidade' : 'Escolha o estado antes'}
-                </option>
-                {cidades.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-
-            <button onClick={buscarLeads} disabled={carregando} className="acao">
-              {carregando ? 'Buscando' : 'Buscar empresas'}
-            </button>
-
-            {erro && (
-              <p className="text-[13px] px-3 py-2 rounded" style={{ background: 'var(--danger-wash)', color: 'var(--danger)' }}>
-                {erro}
-              </p>
-            )}
-          </div>
+          <button onClick={buscarLeads} disabled={carregando} className="acao acao-latao">
+            {carregando ? 'Buscando' : 'Buscar'}
+          </button>
         </div>
 
-        {logado && leads.length > 0 && (
-          <div className="px-6 py-4" style={{ borderTop: '1px solid var(--line)' }}>
-            <div className="flex items-baseline justify-between mb-2">
-              <span className="text-[13px]" style={{ color: 'var(--ink-2)' }}>
-                {contatados} de {leads.length} contatados
-              </span>
-              <span className="display text-[15px]" style={{ color: 'var(--ink)' }}>{progresso}%</span>
-            </div>
-            <div className="h-[3px] rounded-full overflow-hidden" style={{ background: 'var(--line)' }}>
-              <div className="h-full rounded-full" style={{ width: `${progresso}%`, background: 'var(--accent)' }} />
-            </div>
-          </div>
-        )}
+        {/* conta e tema, à direita */}
+        <div className="ml-auto flex items-center gap-2 pointer-events-auto relative">
+          <button onClick={alternarTema} className="flutua p-2.5" aria-label="Alternar tema" title="Alternar tema"
+            style={{ color: 'var(--ink-2)', cursor: 'pointer' }}>
+            {tema === 'claro' ? <IconeLua /> : <IconeSol />}
+          </button>
 
-        {logado && historico.length > 0 && (
-          <div className="px-6 py-4 flex-1 overflow-auto" style={{ borderTop: '1px solid var(--line)' }}>
-            <p className="text-[13px] mb-2.5" style={{ color: 'var(--ink-2)' }}>Buscas anteriores</p>
-            <div className="space-y-0.5">
-              {historico.slice(0, 8).map((h) => (
-                <button
-                  key={h.id}
-                  onClick={() => repetirBusca(h)}
-                  className="w-full text-left px-2 py-1.5 rounded text-[13px] flex items-baseline justify-between gap-2"
-                  style={{ color: 'var(--ink-2)' }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--surface-2)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                >
-                  <span className="truncate">
-                    {h.nicho} <span style={{ color: 'var(--ink-3)' }}>em {h.localidade}</span>
-                  </span>
-                  <span style={{ color: 'var(--ink-3)' }}>{h.total}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="mt-auto px-6 py-4" style={{ borderTop: '1px solid var(--line)' }}>
           {logado ? (
             <>
-              {ehAdmin && (
-                <a href="/admin" className="block text-[13px] mb-2.5" style={{ color: 'var(--accent)' }}>
-                  Painel do administrador
-                </a>
+              <button onClick={() => setMenuConta((v) => !v)} className="flutua px-3 py-2 text-[13px]"
+                style={{ color: 'var(--ink-2)', cursor: 'pointer' }}>
+                {emailUsuario.split('@')[0]}
+              </button>
+              {menuConta && (
+                <div className="flutua flutua-alta absolute right-0 top-12 w-52 p-1.5 z-30">
+                  {ehAdmin && (
+                    <a href="/admin" className="block px-3 py-2 rounded-lg text-[13px]" style={{ color: 'var(--ink)' }}>
+                      Painel do administrador
+                    </a>
+                  )}
+                  <button onClick={sair} className="w-full text-left px-3 py-2 rounded-lg text-[13px]"
+                    style={{ color: 'var(--ink)' }}>
+                    Sair da conta
+                  </button>
+                </div>
               )}
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[13px] truncate" style={{ color: 'var(--ink-3)' }}>{emailUsuario}</span>
-                <button onClick={sair} className="text-[13px] shrink-0" style={{ color: 'var(--ink-2)' }}>Sair</button>
-              </div>
             </>
           ) : (
-            <div className="flex gap-2">
-              <a href="/login" className="acao-discreta flex-1 justify-center" style={{ textDecoration: 'none' }}>Entrar</a>
-              <a
-                href="/cadastro"
-                className="acao flex-1 text-center"
-                style={{ padding: '0.4rem 0.7rem', fontSize: '0.8125rem', textDecoration: 'none', width: 'auto' }}
-              >
+            <>
+              <a href="/login" className="flutua px-3 py-2 text-[13px]" style={{ color: 'var(--ink-2)' }}>Entrar</a>
+              <a href="/cadastro" className="acao acao-latao" style={{ textDecoration: 'none', padding: '0.6rem 1rem' }}>
                 Criar conta
               </a>
-            </div>
-          )}
-        </div>
-      </aside>
-
-      {/* ========== LEDGER ========== */}
-      <main className="flex-1 min-w-0 flex flex-col">
-        <header
-          className="px-5 lg:px-6 py-3 flex items-center gap-3 flex-wrap shrink-0"
-          style={{ borderBottom: '1px solid var(--line)', background: 'var(--surface)' }}
-        >
-          <h1 className="display text-[17px] mr-1" style={{ color: 'var(--ink)' }}>
-            {visiveis.length} {visiveis.length === 1 ? 'empresa' : 'empresas'}
-            {visiveis.length !== leads.length && (
-              <span className="text-[14px]" style={{ color: 'var(--ink-3)' }}> de {leads.length}</span>
-            )}
-          </h1>
-
-          {logado && leads.length > 0 && (
-            <>
-              <input
-                className="campo flex-1 min-w-[150px] max-w-[240px]"
-                style={{ padding: '0.4rem 0.6rem', fontSize: '0.8125rem' }}
-                placeholder="Filtrar por nome, endereço ou etiqueta"
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
-                aria-label="Filtrar resultados"
-              />
-              <select
-                className="campo"
-                style={{ padding: '0.4rem 0.6rem', fontSize: '0.8125rem', width: 'auto' }}
-                value={ordenar}
-                onChange={(e) => setOrdenar(e.target.value as Ordenacao)}
-                aria-label="Ordenar por"
-              >
-                <option value="recentes">Mais recentes</option>
-                <option value="nome">Nome</option>
-                <option value="avaliacao">Melhor avaliadas</option>
-              </select>
-              <div className="flex rounded overflow-hidden" style={{ border: '1px solid var(--line-2)' }}>
-                {[0, 3, 4, 4.5].map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => setNotaMin(n)}
-                    className="px-2.5 py-1.5 text-[13px]"
-                    style={{
-                      background: notaMin === n ? 'var(--accent)' : 'transparent',
-                      color: notaMin === n ? 'var(--accent-ink)' : 'var(--ink-2)',
-                    }}
-                  >
-                    {n === 0 ? 'Todas' : `${n}+`}
-                  </button>
-                ))}
-              </div>
-              <button
-                onClick={() => setSoNaoContatados((v) => !v)}
-                className="acao-discreta"
-                style={soNaoContatados ? { background: 'var(--accent)', color: 'var(--accent-ink)', borderColor: 'var(--accent)' } : undefined}
-              >
-                Pendentes
-              </button>
-
-              <div className="ml-auto flex items-center gap-2">
-                <button onClick={() => setVerMapa((v) => !v)} className="acao-discreta">
-                  {verMapa ? 'Ocultar mapa' : 'Ver mapa'}
-                </button>
-                <button onClick={exportarCSV} className="acao-discreta">Baixar CSV</button>
-                <button onClick={() => setConfirmarLimpar(true)} className="acao-discreta" style={{ color: 'var(--danger)' }}>
-                  Apagar tudo
-                </button>
-              </div>
             </>
           )}
-        </header>
+        </div>
+      </div>
 
-        <div className="flex-1 flex min-h-0">
-          <div className="flex-1 min-w-0 overflow-auto relative">
-            {carregando && leads.length === 0 ? (
-              <Vazio titulo="Buscando empresas" texto="Consultando o Google Maps e separando quem ainda não tem site." />
-            ) : visiveis.length === 0 ? (
-              <Vazio
-                titulo={leads.length ? 'Nenhuma empresa com esses filtros' : 'Comece uma busca'}
-                texto={leads.length
-                  ? 'Ajuste os filtros no topo para ver mais resultados.'
-                  : 'Escolha um nicho e uma cidade no painel à esquerda.'}
-              />
-            ) : (
-              <div style={logado === false ? { filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' } : undefined}>
+      {erro && (
+        <div className="absolute top-24 left-4 z-30 flutua px-3.5 py-2.5 text-[13px] max-w-[320px]"
+          style={{ color: 'var(--danger)', background: 'var(--danger-wash)' }}>
+          {erro}
+        </div>
+      )}
+
+      {/* ===== PAINEL DE RESULTADOS, FLUTUANDO À ESQUERDA ===== */}
+      {leads.length > 0 && (
+        listaAberta ? (
+          <section
+            className="absolute left-4 top-24 bottom-4 w-[368px] z-10 flutua flutua-alta flex flex-col overflow-hidden"
+            aria-label="Empresas encontradas"
+          >
+            {/* cabeçalho do painel: número em serifa */}
+            <div className="px-5 pt-4 pb-3" style={{ borderBottom: '1px solid var(--line)' }}>
+              <div className="flex items-end justify-between mb-3">
+                <div>
+                  <span className="serifa block leading-[0.95] text-[46px]" style={{ color: 'var(--ink)' }}>
+                    {visiveis.length}
+                  </span>
+                  <span className="text-[13px]" style={{ color: 'var(--ink-2)' }}>
+                    {visiveis.length === 1 ? 'empresa sem site' : 'empresas sem site'}
+                    {visiveis.length !== leads.length && ` de ${leads.length}`}
+                  </span>
+                </div>
+                <button onClick={() => setListaAberta(false)} className="acao-discreta" aria-label="Recolher lista">
+                  Recolher
+                </button>
+              </div>
+
+              {logado && leads.length > 0 && (
+                <>
+                  <div className="flex items-baseline justify-between mb-1.5">
+                    <span className="text-[12.5px]" style={{ color: 'var(--ink-3)' }}>
+                      {contatados} já contatadas
+                    </span>
+                    <span className="text-[12.5px]" style={{ color: 'var(--ink-3)' }}>{progresso}%</span>
+                  </div>
+                  <div className="h-[3px] rounded-full overflow-hidden mb-3" style={{ background: 'var(--line)' }}>
+                    <div className="h-full rounded-full" style={{ width: `${progresso}%`, background: 'var(--brass)' }} />
+                  </div>
+
+                  <input
+                    className="campo mb-2"
+                    style={{ fontSize: '0.8125rem' }}
+                    placeholder="Filtrar por nome, endereço ou etiqueta"
+                    value={busca}
+                    onChange={(e) => setBusca(e.target.value)}
+                    aria-label="Filtrar"
+                  />
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <select
+                      className="campo"
+                      style={{ fontSize: '0.75rem', padding: '0.3rem 0.45rem', width: 'auto' }}
+                      value={ordenar}
+                      onChange={(e) => setOrdenar(e.target.value as Ordenacao)}
+                      aria-label="Ordenar"
+                    >
+                      <option value="recentes">Recentes</option>
+                      <option value="nome">Nome</option>
+                      <option value="avaliacao">Melhor nota</option>
+                    </select>
+                    {[3, 4, 4.5].map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => setNotaMin(notaMin === n ? 0 : n)}
+                        className="acao-discreta"
+                        data-ativo={notaMin === n ? '1' : '0'}
+                        style={{ fontSize: '0.75rem', padding: '0.28rem 0.5rem' }}
+                      >
+                        {n}+
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setSoNaoContatados((v) => !v)}
+                      className="acao-discreta"
+                      data-ativo={soNaoContatados ? '1' : '0'}
+                      style={{ fontSize: '0.75rem', padding: '0.28rem 0.5rem' }}
+                    >
+                      Pendentes
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* lista */}
+            <div className="flex-1 overflow-auto p-2 relative">
+              <div style={visitante ? { filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' } : undefined}>
                 {visiveis.map((lead) => (
                   <button
                     key={lead.id}
                     onClick={() => escolherLead(lead.id)}
                     data-sel={selecionado === lead.id ? '1' : '0'}
-                    className="linha"
-                    style={{ gridTemplateColumns: 'minmax(0,1fr) auto', opacity: lead.contatado ? 0.5 : 1 }}
+                    className="registro"
+                    style={{ opacity: lead.contatado ? 0.48 : 1 }}
                   >
-                    <span className="min-w-0">
-                      <span className="flex items-center gap-2">
-                        <span className="text-[14px] truncate" style={{ color: 'var(--ink)' }}>{lead.nome}</span>
-                        {(lead.tags ?? []).slice(0, 2).map((t) => (
-                          <span key={t} className="etiqueta shrink-0">{t}</span>
+                    <span className="flex items-center gap-2 mb-0.5">
+                      <span className="text-[13.5px] truncate" style={{ color: 'var(--ink)' }}>{lead.nome}</span>
+                      {lead.notas && <IconeNota />}
+                    </span>
+                    <span className="flex items-center gap-2 text-[12px]" style={{ color: 'var(--ink-3)' }}>
+                      <span className="truncate flex-1">{lead.endereco}</span>
+                      {lead.avaliacao && <span className="shrink-0">{lead.avaliacao} ★</span>}
+                    </span>
+                    {(lead.tags ?? []).length > 0 && (
+                      <span className="flex gap-1 mt-1.5 flex-wrap">
+                        {(lead.tags ?? []).slice(0, 3).map((t) => (
+                          <span key={t} className="etiqueta">{t}</span>
                         ))}
-                        {lead.notas && <IconeNota />}
                       </span>
-                      <span className="block text-[12.5px] truncate mt-0.5" style={{ color: 'var(--ink-3)' }}>
-                        {lead.endereco}
-                      </span>
-                    </span>
-                    <span className="flex items-center gap-4 pl-4">
-                      <span className="text-[13px] w-14 text-right" style={{ color: lead.avaliacao ? 'var(--ink-2)' : 'var(--ink-3)' }}>
-                        {lead.avaliacao ? `${lead.avaliacao} ★` : '—'}
-                      </span>
-                      <span className="text-[13px] hidden sm:block" style={{ color: 'var(--ink-2)' }}>{lead.telefone}</span>
-                    </span>
+                    )}
                   </button>
                 ))}
-              </div>
-            )}
-
-            {logado === false && leads.length > 0 && (
-              <div className="absolute inset-0 flex items-center justify-center px-6">
-                <div
-                  className="max-w-[320px] w-full p-7 rounded-lg text-center"
-                  style={{ background: 'var(--surface)', border: '1px solid var(--line-2)' }}
-                >
-                  <p className="display text-[34px] leading-none mb-1.5" style={{ color: 'var(--ink)' }}>{leads.length}</p>
-                  <p className="text-[14px] mb-1" style={{ color: 'var(--ink)' }}>empresas sem site nessa região</p>
-                  <p className="text-[13px] mb-5" style={{ color: 'var(--ink-2)' }}>
-                    Crie uma conta para ver nomes, telefones e endereços.
+                {visiveis.length === 0 && (
+                  <p className="text-[13px] text-center py-10 px-4" style={{ color: 'var(--ink-2)' }}>
+                    Nenhuma empresa com esses filtros. Ajuste a nota mínima ou limpe o texto do filtro.
                   </p>
-                  <a href="/cadastro" className="acao block text-center" style={{ textDecoration: 'none' }}>
-                    Criar conta grátis
-                  </a>
-                  <a href="/login" className="block text-[13px] mt-3" style={{ color: 'var(--ink-2)' }}>
-                    Já tenho conta
-                  </a>
-                </div>
+                )}
               </div>
-            )}
-          </div>
 
-          {logado && leadAtual && (
-            <aside
-              className="w-[340px] shrink-0 hidden xl:flex flex-col overflow-auto"
-              style={{ borderLeft: '1px solid var(--line)', background: 'var(--surface)' }}
-            >
-              {verMapa && (
-                <div className="h-[190px] shrink-0" style={{ borderBottom: '1px solid var(--line)' }}>
-                  <MapaLeads pontos={comCoordenadas} selecionado={selecionado} aoSelecionar={escolherLead} />
+              {visitante && (
+                <div className="absolute inset-0 flex items-center justify-center p-4">
+                  <div className="flutua flutua-alta p-6 text-center w-full">
+                    <p className="serifa text-[42px] leading-none mb-1" style={{ color: 'var(--ink)' }}>
+                      {leads.length}
+                    </p>
+                    <p className="text-[13.5px] mb-1" style={{ color: 'var(--ink)' }}>
+                      empresas sem site nessa região
+                    </p>
+                    <p className="text-[12.5px] mb-4 leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                      Crie uma conta para ver nomes, telefones e onde cada uma fica.
+                    </p>
+                    <a href="/cadastro" className="acao acao-latao block" style={{ textDecoration: 'none' }}>
+                      Criar conta grátis
+                    </a>
+                    <a href="/login" className="block text-[12.5px] mt-2.5" style={{ color: 'var(--ink-2)' }}>
+                      Já tenho conta
+                    </a>
+                  </div>
                 </div>
               )}
+            </div>
 
-              <div className="p-5">
-                <h2 className="display text-[20px] leading-snug mb-1" style={{ color: 'var(--ink)' }}>
+            {/* rodapé do painel */}
+            {logado && (
+              <div className="px-3 py-2.5 flex items-center gap-2" style={{ borderTop: '1px solid var(--line)' }}>
+                <button onClick={exportarCSV} className="acao-discreta">Baixar CSV</button>
+                <button onClick={() => setConfirmarLimpar(true)} className="acao-discreta" style={{ color: 'var(--danger)' }}>
+                  Apagar tudo
+                </button>
+              </div>
+            )}
+          </section>
+        ) : (
+          <button
+            onClick={() => setListaAberta(true)}
+            className="absolute left-4 top-24 z-10 flutua flutua-alta px-4 py-3 text-left"
+            style={{ cursor: 'pointer' }}
+          >
+            <span className="serifa block text-[28px] leading-none" style={{ color: 'var(--ink)' }}>
+              {visiveis.length}
+            </span>
+            <span className="text-[12px]" style={{ color: 'var(--ink-2)' }}>ver lista</span>
+          </button>
+        )
+      )}
+
+      {/* ===== ESTADO INICIAL, CENTRALIZADO SOBRE O MAPA ===== */}
+      {leads.length === 0 && !carregando && (
+        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none px-6">
+          <div className="flutua flutua-alta px-8 py-7 max-w-[380px] text-center pointer-events-auto">
+            <p className="serifa text-[27px] leading-tight mb-2" style={{ color: 'var(--ink)' }}>
+              Toda empresa sem site é um cliente esperando
+            </p>
+            <p className="text-[13.5px] leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+              Escolha um nicho e uma cidade na barra acima. O mapa mostra onde estão as que ainda
+              não têm presença na internet.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {carregando && leads.length === 0 && (
+        <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+          <div className="flutua flutua-alta px-6 py-4">
+            <p className="text-[13.5px]" style={{ color: 'var(--ink-2)' }}>
+              Consultando o Google Maps e separando quem ainda não tem site
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* ===== FOLHA DE DETALHE, À DIREITA ===== */}
+      {logado && leadAtual && (
+        <aside
+          className="absolute right-4 top-24 bottom-4 w-[350px] z-20 flutua flutua-alta folha overflow-auto"
+          aria-label="Detalhes da empresa"
+        >
+          <div className="p-5">
+            <div className="flex items-start justify-between gap-2 mb-3">
+              <div className="min-w-0">
+                <h2 className="serifa text-[24px] leading-tight" style={{ color: 'var(--ink)' }}>
                   {leadAtual.nome}
                 </h2>
                 {leadAtual.categoria && (
-                  <p className="text-[13px] mb-3" style={{ color: 'var(--ink-3)' }}>{leadAtual.categoria}</p>
+                  <p className="text-[12.5px] mt-0.5" style={{ color: 'var(--ink-3)' }}>{leadAtual.categoria}</p>
                 )}
-
-                <dl className="space-y-2.5 mb-5">
-                  <Dado rotulo="Telefone" valor={leadAtual.telefone} />
-                  <Dado rotulo="Endereço" valor={leadAtual.endereco} />
-                  {leadAtual.avaliacao && (
-                    <Dado
-                      rotulo="Avaliação"
-                      valor={`${leadAtual.avaliacao} de 5${leadAtual.total_avaliacoes ? `, ${leadAtual.total_avaliacoes} avaliações` : ''}`}
-                    />
-                  )}
-                  {leadAtual.horario_funcionamento && (
-                    <div>
-                      <dt className="text-[12.5px] mb-0.5" style={{ color: 'var(--ink-3)' }}>Horário</dt>
-                      <dd className="text-[13px] leading-relaxed" style={{ color: 'var(--ink-2)' }}>
-                        {leadAtual.horario_funcionamento.split(' | ').map((linha, i) => (
-                          <span key={i} className="block">{linha}</span>
-                        ))}
-                      </dd>
-                    </div>
-                  )}
-                </dl>
-
-                <div className="flex flex-wrap gap-2 mb-5">
-                  <button
-                    onClick={() => alternarContato(leadAtual.id)}
-                    className="acao-discreta"
-                    style={leadAtual.contatado ? { background: 'var(--accent-wash)', borderColor: 'var(--accent)', color: 'var(--accent)' } : undefined}
-                  >
-                    {leadAtual.contatado ? 'Contatado' : 'Marcar contatado'}
-                  </button>
-                  <a
-                    href={`https://wa.me/55${soDigitos(leadAtual.telefone)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="acao-discreta"
-                    style={{ textDecoration: 'none' }}
-                  >
-                    WhatsApp
-                  </a>
-                  <button onClick={() => copiar(leadAtual.telefone, 'Telefone copiado')} className="acao-discreta">
-                    Copiar telefone
-                  </button>
-                  {leadAtual.google_maps_url && (
-                    <a
-                      href={leadAtual.google_maps_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="acao-discreta"
-                      style={{ textDecoration: 'none' }}
-                    >
-                      Google Maps
-                    </a>
-                  )}
-                  <button onClick={() => copiar(textoParaPrompt(leadAtual), 'Resumo copiado')} className="acao-discreta">
-                    Copiar resumo
-                  </button>
-                </div>
-
-                <div style={{ borderTop: '1px solid var(--line)' }} className="pt-4">
-                  <label htmlFor="tags" className="block text-[12.5px] mb-1.5" style={{ color: 'var(--ink-2)' }}>
-                    Etiquetas, separadas por vírgula
-                  </label>
-                  <input
-                    id="tags"
-                    className="campo mb-3"
-                    style={{ fontSize: '0.8125rem' }}
-                    placeholder="prioridade, retornar, ja falei"
-                    value={rascunhoTags}
-                    onChange={(e) => setRascunhoTags(e.target.value)}
-                  />
-
-                  <label htmlFor="nota" className="block text-[12.5px] mb-1.5" style={{ color: 'var(--ink-2)' }}>
-                    Anotações
-                  </label>
-                  <textarea
-                    id="nota"
-                    className="campo mb-3"
-                    rows={4}
-                    style={{ fontSize: '0.8125rem', resize: 'vertical' }}
-                    placeholder="O que combinaram, quando retornar, quem atende"
-                    value={rascunhoNota}
-                    onChange={(e) => setRascunhoNota(e.target.value)}
-                  />
-
-                  <button onClick={salvarNota} disabled={salvandoNota} className="acao">
-                    {salvandoNota ? 'Salvando' : 'Salvar anotação'}
-                  </button>
-                </div>
               </div>
-            </aside>
-          )}
+              <button onClick={() => setSelecionado(null)} className="acao-discreta shrink-0"
+                style={{ padding: '0.25rem 0.5rem' }} aria-label="Fechar detalhes">
+                Fechar
+              </button>
+            </div>
+
+            <dl className="space-y-2.5 mb-4">
+              <Dado rotulo="Telefone" valor={leadAtual.telefone} />
+              <Dado rotulo="Endereço" valor={leadAtual.endereco} />
+              {leadAtual.avaliacao && (
+                <Dado
+                  rotulo="Avaliação"
+                  valor={`${leadAtual.avaliacao} de 5${leadAtual.total_avaliacoes ? `, ${leadAtual.total_avaliacoes} avaliações` : ''}`}
+                />
+              )}
+              {leadAtual.horario_funcionamento && (
+                <div>
+                  <dt className="text-[12px] mb-0.5" style={{ color: 'var(--ink-3)' }}>Horário</dt>
+                  <dd className="text-[12.5px] leading-relaxed" style={{ color: 'var(--ink-2)' }}>
+                    {leadAtual.horario_funcionamento.split(' | ').map((linha, i) => (
+                      <span key={i} className="block">{linha}</span>
+                    ))}
+                  </dd>
+                </div>
+              )}
+            </dl>
+
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              <button
+                onClick={() => alternarContato(leadAtual.id)}
+                className="acao-discreta"
+                data-ativo={leadAtual.contatado ? '1' : '0'}
+              >
+                {leadAtual.contatado ? 'Contatado' : 'Marcar contatado'}
+              </button>
+              <a href={`https://wa.me/55${soDigitos(leadAtual.telefone)}`} target="_blank" rel="noopener noreferrer" className="acao-discreta">
+                WhatsApp
+              </a>
+              <button onClick={() => copiar(leadAtual.telefone, 'Telefone copiado')} className="acao-discreta">
+                Copiar telefone
+              </button>
+              {leadAtual.google_maps_url && (
+                <a href={leadAtual.google_maps_url} target="_blank" rel="noopener noreferrer" className="acao-discreta">
+                  Ver no Maps
+                </a>
+              )}
+              <button onClick={() => copiar(textoParaPrompt(leadAtual), 'Resumo copiado')} className="acao-discreta">
+                Copiar resumo
+              </button>
+            </div>
+
+            <div className="pt-4" style={{ borderTop: '1px solid var(--line)' }}>
+              <label htmlFor="tags" className="block text-[12px] mb-1.5" style={{ color: 'var(--ink-2)' }}>
+                Etiquetas, separadas por vírgula
+              </label>
+              <input
+                id="tags"
+                className="campo mb-3"
+                style={{ fontSize: '0.8125rem' }}
+                placeholder="prioridade, retornar, ja falei"
+                value={rascunhoTags}
+                onChange={(e) => setRascunhoTags(e.target.value)}
+              />
+
+              <label htmlFor="nota" className="block text-[12px] mb-1.5" style={{ color: 'var(--ink-2)' }}>
+                Anotações
+              </label>
+              <textarea
+                id="nota"
+                className="campo mb-3"
+                rows={4}
+                style={{ fontSize: '0.8125rem', resize: 'vertical' }}
+                placeholder="O que combinaram, quando retornar, quem atende"
+                value={rascunhoNota}
+                onChange={(e) => setRascunhoNota(e.target.value)}
+              />
+
+              <button onClick={salvarNota} disabled={salvandoNota} className="acao w-full">
+                {salvandoNota ? 'Salvando' : 'Salvar anotação'}
+              </button>
+            </div>
+          </div>
+        </aside>
+      )}
+
+      {/* histórico, canto inferior esquerdo quando a lista está recolhida */}
+      {logado && historico.length > 0 && !listaAberta && (
+        <div className="absolute left-4 bottom-4 z-10 flutua p-3 w-[290px]">
+          <p className="text-[12px] mb-1.5" style={{ color: 'var(--ink-3)' }}>Buscas anteriores</p>
+          {historico.slice(0, 5).map((h) => (
+            <button
+              key={h.id}
+              onClick={() => repetirBusca(h)}
+              className="w-full text-left px-2 py-1.5 rounded-lg text-[12.5px] flex justify-between gap-2"
+              style={{ color: 'var(--ink-2)' }}
+            >
+              <span className="truncate">{h.nicho}, {h.localidade}</span>
+              <span style={{ color: 'var(--ink-3)' }}>{h.total}</span>
+            </button>
+          ))}
         </div>
-      </main>
+      )}
 
       {aviso && (
         <div
-          className="fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2 rounded text-[13px] z-50"
+          className="fixed bottom-5 left-1/2 -translate-x-1/2 px-4 py-2 rounded-lg text-[13px] z-50"
           style={{ background: 'var(--ink)', color: 'var(--canvas)' }}
           role="status"
         >
@@ -731,17 +748,14 @@ export default function Dashboard() {
       {confirmarLimpar && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-6"
-          style={{ background: 'rgba(10,14,13,0.45)' }}
+          style={{ background: 'rgba(10,12,10,0.5)' }}
           onClick={() => setConfirmarLimpar(false)}
         >
-          <div
-            className="w-full max-w-sm rounded-lg p-6"
-            style={{ background: 'var(--surface)', border: '1px solid var(--line-2)' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="display text-[19px] mb-2" style={{ color: 'var(--ink)' }}>Apagar todos os leads</h2>
+          <div className="w-full max-w-sm rounded-2xl p-6 flutua flutua-alta" onClick={(e) => e.stopPropagation()}>
+            <h2 className="serifa text-[22px] mb-2" style={{ color: 'var(--ink)' }}>Apagar todos os leads</h2>
             <p className="text-[13.5px] mb-6 leading-relaxed" style={{ color: 'var(--ink-2)' }}>
-              Isso remove as {leads.length} empresas salvas, junto das anotações e etiquetas. A ação não pode ser desfeita.
+              Isso remove as {leads.length} empresas salvas, junto das anotações e etiquetas.
+              A ação não pode ser desfeita.
             </p>
             <div className="flex gap-2 justify-end">
               <button onClick={() => setConfirmarLimpar(false)} className="acao-discreta">Cancelar</button>
@@ -760,32 +774,21 @@ export default function Dashboard() {
   );
 }
 
-/* ---------------- peças ---------------- */
+/* ---------- peças ---------- */
 
 function Dado({ rotulo, valor }: { rotulo: string; valor: string }) {
   return (
     <div>
-      <dt className="text-[12.5px] mb-0.5" style={{ color: 'var(--ink-3)' }}>{rotulo}</dt>
+      <dt className="text-[12px] mb-0.5" style={{ color: 'var(--ink-3)' }}>{rotulo}</dt>
       <dd className="text-[13.5px] leading-snug" style={{ color: 'var(--ink)' }}>{valor}</dd>
-    </div>
-  );
-}
-
-function Vazio({ titulo, texto }: { titulo: string; texto: string }) {
-  return (
-    <div className="h-full min-h-[320px] flex flex-col items-center justify-center text-center px-8">
-      <p className="display text-[19px] mb-1.5" style={{ color: 'var(--ink)' }}>{titulo}</p>
-      <p className="text-[13.5px] max-w-[300px] leading-relaxed" style={{ color: 'var(--ink-2)' }}>{texto}</p>
     </div>
   );
 }
 
 function IconeNota() {
   return (
-    <svg
-      width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-      className="shrink-0" style={{ color: 'var(--ink-3)' }} aria-label="tem anotação"
-    >
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2"
+      className="shrink-0" style={{ color: 'var(--brass)' }} aria-label="tem anotação">
       <path d="M4 5h16M4 12h16M4 19h10" strokeLinecap="round" />
     </svg>
   );
@@ -793,7 +796,7 @@ function IconeNota() {
 
 function IconeLua() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
       <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" strokeLinejoin="round" />
     </svg>
   );
@@ -801,7 +804,7 @@ function IconeLua() {
 
 function IconeSol() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
       <circle cx="12" cy="12" r="4" />
       <path
         d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
