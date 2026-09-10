@@ -1,8 +1,9 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Lead {
-  id: string;
+  id: number;
   nome: string;
   endereco: string;
   avaliacao: number | null;
@@ -13,12 +14,14 @@ interface Lead {
 type Ordenacao = 'recentes' | 'nome' | 'avaliacao';
 
 export default function Dashboard() {
+  const router = useRouter();
+  const [emailUsuario, setEmailUsuario] = useState('');
   const [nicho, setNicho] = useState('');
   const [localidade, setLocalidade] = useState('');
   const [leads, setLeads] = useState<Lead[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
-  const [copiado, setCopiado] = useState<string | null>(null);
+  const [copiado, setCopiado] = useState<number | null>(null);
 
   // controles de resultado
   const [busca, setBusca] = useState('');
@@ -28,8 +31,24 @@ export default function Dashboard() {
   const [confirmarLimpar, setConfirmarLimpar] = useState(false);
 
   useEffect(() => {
+    conferirAcesso();
     carregarLeadsSalvos();
   }, []);
+
+  async function conferirAcesso() {
+    try {
+      const res = await fetch('/api/auth/eu');
+      const data = await res.json();
+      if (!data.usuario) return router.push('/login');
+      if (data.usuario.status_assinatura !== 'ativa') return router.push('/assinatura');
+      setEmailUsuario(data.usuario.email);
+    } catch {}
+  }
+
+  async function sair() {
+    await fetch('/api/auth/logout', { method: 'POST' });
+    router.push('/login');
+  }
 
   async function carregarLeadsSalvos() {
     try {
@@ -62,7 +81,7 @@ export default function Dashboard() {
     }
   }
 
-  async function alternarContato(id: string) {
+  async function alternarContato(id: number) {
     // atualização otimista
     setLeads((prev) =>
       prev.map((l) => (l.id === id ? { ...l, contatado: !l.contatado } : l))
@@ -88,7 +107,7 @@ export default function Dashboard() {
     }
   }
 
-  function copiarTelefone(tel: string, id: string) {
+  function copiarTelefone(tel: string, id: number) {
     navigator.clipboard.writeText(tel);
     setCopiado(id);
     setTimeout(() => setCopiado(null), 1500);
@@ -218,6 +237,14 @@ export default function Dashboard() {
             <p className="text-[10px] mono mt-4 leading-relaxed" style={{ color: 'var(--text-faint)' }}>
               Empresas sem site no Google Maps. Dados via Google Places.
             </p>
+
+            <div className="h-px my-4" style={{ background: 'var(--border)' }} />
+            <div className="flex items-center justify-between">
+              <span className="text-xs truncate" style={{ color: 'var(--text-dim)' }}>{emailUsuario}</span>
+              <button onClick={sair} className="text-xs shrink-0 ml-2" style={{ color: 'var(--text-faint)' }}>
+                Sair
+              </button>
+            </div>
           </div>
         </div>
       </aside>
