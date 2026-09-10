@@ -190,3 +190,17 @@ input::placeholder, textarea::placeholder { color: var(--ink-3); }
 }
 
 .card { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; box-shadow: var(--sombra); }
+
+/* ===== Responsivo ===== */
+html, body { max-width: 100%; overflow-x: hidden; }
+
+/* impede que grids e flex estourem a largura da tela */
+.cartao, .campo, .acao, .acao-discreta { max-width: 100%; }
+
+/* o Recharts precisa de um pai com largura mínima zero */
+.recharts-responsive-container { min-width: 0 !important; }
+
+@media (max-width: 640px) {
+  /* números grandes menores no celular */
+  .destaque { letter-spacing: -0.02em; }
+}

@@ -363,11 +363,11 @@ export default function Dashboard() {
   const paleta = [cores.violeta, cores.coral, cores.turquesa, cores.ambar, cores.dim];
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row" style={{ background: 'var(--canvas)' }}>
+    <div className="min-h-screen flex flex-col lg:flex-row overflow-x-hidden" style={{ background: 'var(--canvas)' }}>
 
       {/* ============ BARRA LATERAL ============ */}
       <aside
-        className="lg:w-[310px] shrink-0 lg:h-screen lg:sticky lg:top-0 flex flex-col"
+        className="lg:w-[310px] shrink-0 lg:h-screen lg:sticky lg:top-0 flex flex-col lg:overflow-y-auto"
         style={{ background: 'var(--surface)', borderRight: '1.5px solid var(--line)' }}
       >
         <div className="p-6 pb-4">
@@ -459,7 +459,7 @@ export default function Dashboard() {
 
         {/* histórico */}
         {logado && historico.length > 0 && (
-          <div className="px-6 py-4 flex-1 overflow-auto" style={{ borderTop: '1.5px solid var(--line)' }}>
+          <div className="px-6 py-4 lg:flex-1 lg:overflow-auto max-h-[240px] overflow-auto" style={{ borderTop: '1.5px solid var(--line)' }}>
             <p className="text-[13px] font-medium mb-2" style={{ color: 'var(--ink-2)' }}>Buscas anteriores</p>
             <div className="space-y-1">
               {historico.slice(0, 8).map((h) => (
@@ -522,7 +522,7 @@ export default function Dashboard() {
         {/* gráficos */}
         {logado && leads.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-5">
-            <div className="cartao p-4">
+            <div className="cartao p-4 min-w-0">
               <p className="text-[13px] font-medium mb-3" style={{ color: 'var(--ink-2)' }}>
                 Como as notas se distribuem
               </p>
@@ -541,7 +541,7 @@ export default function Dashboard() {
               </ResponsiveContainer>
             </div>
 
-            <div className="cartao p-4">
+            <div className="cartao p-4 min-w-0">
               <p className="text-[13px] font-medium mb-3" style={{ color: 'var(--ink-2)' }}>
                 Quanto do trabalho já foi feito
               </p>
@@ -609,7 +609,7 @@ export default function Dashboard() {
                 Mapa
               </button>
             )}
-            <div className="ml-auto flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto sm:ml-auto">
               <button onClick={exportarCSV} className="acao-discreta">Baixar CSV</button>
               <button onClick={() => setConfirmarLimpar(true)} className="acao-discreta" style={{ color: 'var(--danger)' }}>
                 Apagar tudo
@@ -620,7 +620,7 @@ export default function Dashboard() {
 
         {/* mapa */}
         {logado && verMapa && comCoordenadas.length > 0 && (
-          <div className="cartao overflow-hidden mb-5" style={{ height: 300 }}>
+          <div className="cartao overflow-hidden mb-5 h-[220px] sm:h-[300px]">
             <MapaLeads
               pontos={comCoordenadas}
               selecionado={selecionado}
@@ -654,7 +654,7 @@ export default function Dashboard() {
             <div
               className="grid gap-3"
               style={{
-                gridTemplateColumns: 'repeat(auto-fill, minmax(288px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 270px), 1fr))',
                 ...(visitante ? { filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' } : {}),
               }}
             >
@@ -738,12 +738,12 @@ export default function Dashboard() {
       {logado && leadAtual && (
         <>
           <div
-            className="fixed inset-0 z-30 lg:hidden"
+            className="fixed inset-0 z-30 xl:hidden"
             style={{ background: 'rgba(13,10,26,.5)' }}
             onClick={() => setSelecionado(null)}
           />
           <aside
-            className="fixed right-0 top-0 bottom-0 w-full sm:w-[360px] z-40 overflow-auto"
+            className="fixed right-0 top-0 bottom-0 w-full max-w-[380px] z-40 overflow-auto"
             style={{ background: 'var(--surface)', borderLeft: '1.5px solid var(--line)' }}
             aria-label="Detalhes da empresa"
           >
@@ -890,7 +890,7 @@ export default function Dashboard() {
 
 function Numero({ rotulo, valor, cor }: { rotulo: string; valor: number | string; cor: string }) {
   return (
-    <div className="cartao p-4 overflow-hidden">
+    <div className="cartao p-4 overflow-hidden min-w-0">
       <div className="destaque text-[30px] leading-none mb-1" style={{ color: cor }}>{valor}</div>
       <div className="text-[12.5px]" style={{ color: 'var(--ink-2)' }}>{rotulo}</div>
     </div>
