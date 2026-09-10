@@ -1,155 +1,190 @@
 @import "tailwindcss";
 
+/* ============================================================
+   Tema claro (padrão) — carta náutica em papel
+   ============================================================ */
 :root {
-  /* Tema claro elegante — inspirado em Stripe/Linear */
-  --bg: #fafafa;
-  --bg-subtle: #f4f4f5;
-  --panel: #ffffff;
-  --panel-hover: #fafafa;
-  --border: #e8e8ec;
-  --border-strong: #d4d4d8;
-  --text: #18181b;
-  --text-dim: #52525b;
-  --text-faint: #a1a1aa;
-  --accent: #6366f1;        /* indigo */
-  --accent-hover: #4f46e5;
-  --accent-soft: #eef2ff;
-  --success: #10b981;
-  --success-soft: #ecfdf5;
-  --cyan: #0891b2;
-  --danger: #ef4444;
-  --danger-soft: #fef2f2;
-  --amber: #f59e0b;
-  --shadow-sm: 0 1px 2px rgba(24,24,27,0.05);
-  --shadow: 0 1px 3px rgba(24,24,27,0.08), 0 1px 2px rgba(24,24,27,0.04);
-  --shadow-md: 0 4px 12px rgba(24,24,27,0.08), 0 2px 4px rgba(24,24,27,0.04);
-  --shadow-lg: 0 12px 32px rgba(24,24,27,0.10), 0 4px 8px rgba(24,24,27,0.04);
+  --canvas: #f4f6f5;
+  --surface: #ffffff;
+  --surface-2: #eceff0;
+  --ink: #111614;
+  --ink-2: #4a5552;
+  --ink-3: #8a9491;
+  --line: #e0e5e3;
+  --line-2: #cdd5d2;
+  --accent: #0f5c52;
+  --accent-ink: #ffffff;
+  --accent-wash: #e6f0ed;
+  --signal: #a8611a;
+  --signal-wash: #f8efe3;
+  --danger: #a02a22;
+  --danger-wash: #f9eae8;
+  --map-filter: none;
+}
+
+/* ============================================================
+   Tema escuro
+   ============================================================ */
+[data-tema="escuro"] {
+  --canvas: #0e1211;
+  --surface: #161b1a;
+  --surface-2: #1d2422;
+  --ink: #e9eeec;
+  --ink-2: #a3aead;
+  --ink-3: #6d7a77;
+  --line: #242b29;
+  --line-2: #313a37;
+  --accent: #5fbfa9;
+  --accent-ink: #08120f;
+  --accent-wash: #16302a;
+  --signal: #d69a5c;
+  --signal-wash: #2c2318;
+  --danger: #e08074;
+  --danger-wash: #2e1a18;
+  --map-filter: invert(1) hue-rotate(180deg) brightness(0.92) contrast(0.9);
 }
 
 * { box-sizing: border-box; }
 
 html, body {
-  background: var(--bg);
-  color: var(--text);
+  background: var(--canvas);
+  color: var(--ink);
   font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: "tnum" 1;
 }
 
-.mono { font-family: var(--font-mono), ui-monospace, monospace; }
-
-::selection { background: var(--accent-soft); color: var(--accent-hover); }
-
-/* Grid de fundo bem sutil */
-.dot-grid {
-  background-image: radial-gradient(circle, var(--border-strong) 1px, transparent 1px);
-  background-size: 24px 24px;
-  opacity: 0.4;
+.display {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
 }
 
-@keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.radar-sweep { animation: sweep 2s linear infinite; transform-origin: center; }
+::selection { background: var(--accent-wash); color: var(--ink); }
 
-@keyframes pulse-ring {
-  0% { transform: scale(0.8); opacity: 0.6; }
-  100% { transform: scale(2.2); opacity: 0; }
-}
-.pulse-ring { animation: pulse-ring 1.8s ease-out infinite; }
-
-@keyframes fade-up {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.fade-up { animation: fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+/* Foco visível para navegação por teclado */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
-::-webkit-scrollbar { width: 10px; height: 10px; }
+/* Papel milimetrado bem discreto, só no rail */
+.papel {
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.5;
+}
+
+::-webkit-scrollbar { width: 9px; height: 9px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 5px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
 
-input::placeholder { color: var(--text-faint); }
+input::placeholder, textarea::placeholder { color: var(--ink-3); }
 
-/* ===== Componentes ===== */
-.input-radar {
+/* ============================================================
+   Controles
+   ============================================================ */
+.campo {
   width: 100%;
-  padding: 0.7rem 0.9rem;
-  border-radius: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
   font-size: 0.875rem;
-  background: var(--panel);
-  border: 1px solid var(--border-strong);
-  color: var(--text);
+  font-family: inherit;
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  color: var(--ink);
   outline: none;
-  transition: all 0.15s;
-  box-shadow: var(--shadow-sm);
+  transition: border-color 0.14s, box-shadow 0.14s;
 }
-.input-radar:focus {
+.campo:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-soft);
+  box-shadow: 0 0 0 3px var(--accent-wash);
 }
-.input-radar:disabled { background: var(--bg-subtle); color: var(--text-faint); cursor: not-allowed; }
+.campo:disabled { background: var(--surface-2); color: var(--ink-3); cursor: not-allowed; }
 
-.btn-primario {
+.acao {
   width: 100%;
-  padding: 0.8rem;
-  border-radius: 0.6rem;
+  padding: 0.7rem;
+  border-radius: 6px;
   font-size: 0.875rem;
-  font-weight: 600;
+  font-weight: 500;
+  font-family: inherit;
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-ink);
   border: none;
   cursor: pointer;
-  transition: all 0.15s;
-  box-shadow: var(--shadow-sm);
+  transition: filter 0.14s;
 }
-.btn-primario:hover:not(:disabled) { background: var(--accent-hover); box-shadow: var(--shadow-md); }
-.btn-primario:disabled { opacity: 0.55; cursor: not-allowed; }
+.acao:hover:not(:disabled) { filter: brightness(1.08); }
+.acao:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.btn-secundario {
+.acao-discreta {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 0.5rem 0.85rem;
-  border-radius: 0.6rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 6px;
   font-size: 0.8125rem;
-  font-weight: 500;
-  background: var(--panel);
-  border: 1px solid var(--border-strong);
-  color: var(--text-dim);
+  font-family: inherit;
+  background: transparent;
+  border: 1px solid var(--line-2);
+  color: var(--ink-2);
   cursor: pointer;
-  transition: all 0.15s;
-  box-shadow: var(--shadow-sm);
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
 }
-.btn-secundario:hover:not(:disabled) { background: var(--bg-subtle); border-color: var(--text-faint); }
-.btn-secundario:disabled { opacity: 0.5; cursor: not-allowed; }
+.acao-discreta:hover:not(:disabled) { background: var(--surface-2); color: var(--ink); }
+.acao-discreta:disabled { opacity: 0.45; cursor: not-allowed; }
 
-.icone-acao {
-  width: 32px;
-  height: 32px;
-  display: flex;
+.etiqueta {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  border: 1px solid var(--border-strong);
-  background: var(--panel);
-  color: var(--text-dim);
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.6875rem;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  border: 1px solid var(--line);
+}
+
+/* Linha do ledger */
+.linha {
+  display: grid;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 0.7rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  border-left: 2px solid transparent;
   cursor: pointer;
-  transition: all 0.15s;
+  font-family: inherit;
+  transition: background 0.12s;
 }
-.icone-acao:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.linha:hover { background: var(--surface-2); }
+.linha[data-sel="1"] {
+  background: var(--surface);
+  border-left-color: var(--accent);
+}
 
+/* Mapa: adapta os tiles ao tema escuro */
+.mapa-tema { filter: var(--map-filter); }
+.leaflet-container { background: var(--surface-2); font-family: inherit; }
+.leaflet-control-attribution { font-size: 9px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* Cartão usado nas telas de conta */
 .card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 0.85rem;
-  box-shadow: var(--shadow);
-  transition: all 0.2s;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
 }
-.card:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
-
-select { cursor: pointer; }

@@ -23,23 +23,23 @@ export default function EsqueciSenha() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 relative" style={{ background: 'var(--bg)' }}>
-      <div className="absolute inset-0 dot-grid pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center px-6 relative" style={{ background: 'var(--canvas)' }}>
+      <div className="absolute inset-0 papel pointer-events-none" />
       <div className="w-full max-w-sm p-8 rounded-2xl relative card">
-        <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--text)' }}>Redefinir senha</h1>
-        <p className="text-sm mb-6" style={{ color: 'var(--text-dim)' }}>
+        <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--ink)' }}>Redefinir senha</h1>
+        <p className="text-sm mb-6" style={{ color: 'var(--ink-2)' }}>
           Enviaremos um link de redefinição para o seu e-mail.
         </p>
 
         {enviado ? (
-          <div className="px-4 py-3 rounded-lg text-sm" style={{ background: 'var(--success-soft)', color: 'var(--success)' }}>
+          <div className="px-4 py-3 rounded-lg text-sm" style={{ background: 'var(--accent-wash)', color: 'var(--accent)' }}>
             Se este e-mail estiver cadastrado, você receberá um link em instantes. Verifique sua caixa de entrada e spam.
           </div>
         ) : (
           <>
-            <input className="input-radar mb-4" placeholder="Seu e-mail" type="email" value={email}
+            <input className="campo mb-4" placeholder="Seu e-mail" type="email" value={email}
               onChange={(e) => setEmail(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && enviar()} />
-            <button onClick={enviar} disabled={carregando || !email} className="btn-primario">
+            <button onClick={enviar} disabled={carregando || !email} className="acao">
               {carregando ? 'Enviando…' : 'Enviar link'}
             </button>
           </>

@@ -70,10 +70,10 @@ export default function PainelAdmin() {
 
   if (erro) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--canvas)' }}>
         <div className="text-center">
           <p className="text-sm mb-4" style={{ color: 'var(--danger)' }}>{erro}</p>
-          <button onClick={() => router.push('/dashboard')} className="btn-secundario">Voltar ao dashboard</button>
+          <button onClick={() => router.push('/dashboard')} className="acao-discreta">Voltar ao dashboard</button>
         </div>
       </div>
     );
@@ -84,14 +84,14 @@ export default function PainelAdmin() {
   const totalLeadsGeral = usuarios.reduce((s, u) => s + u.total_leads, 0);
 
   return (
-    <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
+    <div className="min-h-screen" style={{ background: 'var(--canvas)' }}>
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-lg font-semibold" style={{ color: 'var(--text)' }}>Painel admin</h1>
-            <p className="text-xs mono mt-0.5" style={{ color: 'var(--text-faint)' }}>Visão geral do sistema</p>
+            <h1 className="text-lg font-semibold" style={{ color: 'var(--ink)' }}>Painel admin</h1>
+            <p className="text-xs mono mt-0.5" style={{ color: 'var(--ink-3)' }}>Visão geral do sistema</p>
           </div>
-          <a href="/dashboard" className="btn-secundario">← Voltar</a>
+          <a href="/dashboard" className="acao-discreta">← Voltar</a>
         </div>
 
         {/* Métricas */}
@@ -107,9 +107,9 @@ export default function PainelAdmin() {
             onClick={() => setAba('usuarios')}
             className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
             style={{
-              background: aba === 'usuarios' ? 'var(--accent)' : 'var(--panel)',
-              color: aba === 'usuarios' ? '#fff' : 'var(--text-dim)',
-              border: '1px solid var(--border)',
+              background: aba === 'usuarios' ? 'var(--accent)' : 'var(--surface)',
+              color: aba === 'usuarios' ? '#fff' : 'var(--ink-2)',
+              border: '1px solid var(--line)',
             }}
           >
             Usuários
@@ -118,9 +118,9 @@ export default function PainelAdmin() {
             onClick={() => setAba('leads')}
             className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
             style={{
-              background: aba === 'leads' ? 'var(--accent)' : 'var(--panel)',
-              color: aba === 'leads' ? '#fff' : 'var(--text-dim)',
-              border: '1px solid var(--border)',
+              background: aba === 'leads' ? 'var(--accent)' : 'var(--surface)',
+              color: aba === 'leads' ? '#fff' : 'var(--ink-2)',
+              border: '1px solid var(--line)',
             }}
           >
             Todos os leads
@@ -128,12 +128,12 @@ export default function PainelAdmin() {
         </div>
 
         {carregando ? (
-          <p className="text-sm" style={{ color: 'var(--text-dim)' }}>Carregando…</p>
+          <p className="text-sm" style={{ color: 'var(--ink-2)' }}>Carregando…</p>
         ) : aba === 'usuarios' ? (
-          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--line)' }}>
             <div
               className="grid grid-cols-[1fr_100px_100px_90px] gap-4 px-5 py-3 text-[11px] mono uppercase tracking-wider"
-              style={{ background: 'var(--panel)', color: 'var(--text-faint)' }}
+              style={{ background: 'var(--surface)', color: 'var(--ink-3)' }}
             >
               <span>E-mail</span>
               <span>Leads</span>
@@ -144,9 +144,9 @@ export default function PainelAdmin() {
               <div
                 key={u.id}
                 className="grid grid-cols-[1fr_100px_100px_90px] gap-4 px-5 py-3.5 items-center"
-                style={{ borderTop: '1px solid var(--border)' }}
+                style={{ borderTop: '1px solid var(--line)' }}
               >
-                <div className="text-sm truncate flex items-center gap-2" style={{ color: 'var(--text)' }}>
+                <div className="text-sm truncate flex items-center gap-2" style={{ color: 'var(--ink)' }}>
                   {u.email}
                   {u.is_admin && (
                     <span className="text-[10px] mono px-1.5 py-0.5 rounded" style={{ background: 'var(--accent)', color: '#fff' }}>
@@ -154,7 +154,7 @@ export default function PainelAdmin() {
                     </span>
                   )}
                 </div>
-                <span className="text-sm mono" style={{ color: 'var(--text-dim)' }}>{u.total_leads}</span>
+                <span className="text-sm mono" style={{ color: 'var(--ink-2)' }}>{u.total_leads}</span>
                 <span className="text-xs mono" style={{ color: u.bloqueado ? 'var(--danger)' : 'var(--accent)' }}>
                   {u.bloqueado ? 'Bloqueado' : 'Ativo'}
                 </span>
@@ -174,10 +174,10 @@ export default function PainelAdmin() {
             ))}
           </div>
         ) : (
-          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+          <div className="rounded-xl overflow-hidden" style={{ border: '1px solid var(--line)' }}>
             <div
               className="grid grid-cols-[1fr_1fr_140px] gap-4 px-5 py-3 text-[11px] mono uppercase tracking-wider"
-              style={{ background: 'var(--panel)', color: 'var(--text-faint)' }}
+              style={{ background: 'var(--surface)', color: 'var(--ink-3)' }}
             >
               <span>Empresa</span>
               <span>Usuário</span>
@@ -187,14 +187,14 @@ export default function PainelAdmin() {
               <div
                 key={l.id}
                 className="grid grid-cols-[1fr_1fr_140px] gap-4 px-5 py-3.5 items-center"
-                style={{ borderTop: '1px solid var(--border)' }}
+                style={{ borderTop: '1px solid var(--line)' }}
               >
                 <div className="min-w-0">
-                  <div className="text-sm truncate" style={{ color: 'var(--text)' }}>{l.nome}</div>
-                  <div className="text-xs truncate" style={{ color: 'var(--text-faint)' }}>{l.endereco}</div>
+                  <div className="text-sm truncate" style={{ color: 'var(--ink)' }}>{l.nome}</div>
+                  <div className="text-xs truncate" style={{ color: 'var(--ink-3)' }}>{l.endereco}</div>
                 </div>
-                <span className="text-xs truncate" style={{ color: 'var(--text-dim)' }}>{l.usuario_email}</span>
-                <span className="text-sm mono" style={{ color: 'var(--cyan)' }}>{l.telefone}</span>
+                <span className="text-xs truncate" style={{ color: 'var(--ink-2)' }}>{l.usuario_email}</span>
+                <span className="text-sm mono" style={{ color: 'var(--accent)' }}>{l.telefone}</span>
               </div>
             ))}
           </div>
@@ -206,9 +206,9 @@ export default function PainelAdmin() {
 
 function Metrica({ label, valor }: { label: string; valor: number }) {
   return (
-    <div className="px-4 py-3 rounded-lg" style={{ background: 'var(--panel)', border: '1px solid var(--border)' }}>
+    <div className="px-4 py-3 rounded-lg" style={{ background: 'var(--surface)', border: '1px solid var(--line)' }}>
       <div className="text-xl font-bold tabular-nums mono" style={{ color: 'var(--accent)' }}>{valor}</div>
-      <div className="text-[10px] mono uppercase tracking-wide mt-0.5" style={{ color: 'var(--text-faint)' }}>{label}</div>
+      <div className="text-[10px] mono uppercase tracking-wide mt-0.5" style={{ color: 'var(--ink-3)' }}>{label}</div>
     </div>
   );
 }

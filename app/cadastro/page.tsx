@@ -30,30 +30,30 @@ export default function Cadastro() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 relative" style={{ background: 'var(--bg)' }}>
-      <div className="absolute inset-0 dot-grid pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center px-6 relative" style={{ background: 'var(--canvas)' }}>
+      <div className="absolute inset-0 papel pointer-events-none" />
       <div className="w-full max-w-sm p-8 rounded-2xl relative card">
         <div className="flex items-center gap-2 mb-6">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--accent)' }}>
             <span style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>R</span>
           </div>
-          <span className="font-semibold" style={{ color: 'var(--text)' }}>Radar de Leads</span>
+          <span className="font-semibold" style={{ color: 'var(--ink)' }}>Radar de Leads</span>
         </div>
 
-        <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--text)' }}>Criar conta grátis</h1>
-        <p className="text-sm mb-6" style={{ color: 'var(--text-dim)' }}>Comece a encontrar leads em minutos</p>
+        <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--ink)' }}>Criar conta grátis</h1>
+        <p className="text-sm mb-6" style={{ color: 'var(--ink-2)' }}>Comece a encontrar leads em minutos</p>
 
-        <input className="input-radar mb-3" placeholder="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input className="input-radar mb-4" placeholder="Senha (mín. 6 caracteres)" type="password" value={senha}
+        <input className="campo mb-3" placeholder="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input className="campo mb-4" placeholder="Senha (mín. 6 caracteres)" type="password" value={senha}
           onChange={(e) => setSenha(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && cadastrar()} />
 
         {erro && <p className="text-xs mb-4" style={{ color: 'var(--danger)' }}>{erro}</p>}
 
-        <button onClick={cadastrar} disabled={carregando} className="btn-primario">
+        <button onClick={cadastrar} disabled={carregando} className="acao">
           {carregando ? 'Criando…' : 'Criar conta'}
         </button>
 
-        <p className="text-sm text-center mt-5" style={{ color: 'var(--text-dim)' }}>
+        <p className="text-sm text-center mt-5" style={{ color: 'var(--ink-2)' }}>
           Já tem conta? <a href="/login" style={{ color: 'var(--accent)', fontWeight: 500 }}>Entrar</a>
         </p>
       </div>

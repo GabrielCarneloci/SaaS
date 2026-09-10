@@ -40,7 +40,7 @@ function Formulario() {
 
   if (sucesso) {
     return (
-      <div className="px-4 py-3 rounded-lg text-sm" style={{ background: 'var(--success-soft)', color: 'var(--success)' }}>
+      <div className="px-4 py-3 rounded-lg text-sm" style={{ background: 'var(--accent-wash)', color: 'var(--accent)' }}>
         Senha redefinida com sucesso! Redirecionando para o login…
       </div>
     );
@@ -48,11 +48,11 @@ function Formulario() {
 
   return (
     <>
-      <input className="input-radar mb-3" placeholder="Nova senha" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
-      <input className="input-radar mb-4" placeholder="Confirmar nova senha" type="password" value={confirma}
+      <input className="campo mb-3" placeholder="Nova senha" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
+      <input className="campo mb-4" placeholder="Confirmar nova senha" type="password" value={confirma}
         onChange={(e) => setConfirma(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && salvar()} />
       {erro && <p className="text-xs mb-4" style={{ color: 'var(--danger)' }}>{erro}</p>}
-      <button onClick={salvar} disabled={carregando} className="btn-primario">
+      <button onClick={salvar} disabled={carregando} className="acao">
         {carregando ? 'Salvando…' : 'Redefinir senha'}
       </button>
     </>
@@ -61,12 +61,12 @@ function Formulario() {
 
 export default function RedefinirSenha() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 relative" style={{ background: 'var(--bg)' }}>
-      <div className="absolute inset-0 dot-grid pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center px-6 relative" style={{ background: 'var(--canvas)' }}>
+      <div className="absolute inset-0 papel pointer-events-none" />
       <div className="w-full max-w-sm p-8 rounded-2xl relative card">
-        <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--text)' }}>Nova senha</h1>
-        <p className="text-sm mb-6" style={{ color: 'var(--text-dim)' }}>Escolha uma senha forte para sua conta.</p>
-        <Suspense fallback={<p className="text-sm" style={{ color: 'var(--text-dim)' }}>Carregando…</p>}>
+        <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--ink)' }}>Nova senha</h1>
+        <p className="text-sm mb-6" style={{ color: 'var(--ink-2)' }}>Escolha uma senha forte para sua conta.</p>
+        <Suspense fallback={<p className="text-sm" style={{ color: 'var(--ink-2)' }}>Carregando…</p>}>
           <Formulario />
         </Suspense>
       </div>

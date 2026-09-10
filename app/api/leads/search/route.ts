@@ -110,6 +110,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Registra no histórico de buscas
+    await pool.query(
+      'insert into historico_buscas (usuario_id, nicho, localidade, total) values ($1, $2, $3, $4)',
+      [sessao.usuarioId, nicho, localidade, semSite.length]
+    );
+
     return NextResponse.json({ total: semSite.length, totalEncontrado: estabelecimentos.length });
   } catch (erro: any) {
     console.error('Erro na busca:', erro?.response?.data || erro.message);
