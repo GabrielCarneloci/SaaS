@@ -2,8 +2,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { pool } from '@/lib/db';
 import { gerarHash, gerarToken, NOME_COOKIE_SESSAO } from '@/lib/auth';
+import { checarRateLimit, ipDoRequest } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
+  const ip = ipDoRequest(req);
+  const limite = await checarRateLimit(`registro:${ip}`, 5, 60 * 60);
+  if (!limite.permitido) {
+    return NextResponse.json({ erro: 'Muitas contas criadas deste IP. Tente mais tarde.' }, { status: 429 });
+  }
+
   const { email, senha } = await req.json();
 
   if (!email || !senha || senha.length < 6) {

@@ -108,7 +108,7 @@ export default function PainelAdmin() {
             className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
             style={{
               background: aba === 'usuarios' ? 'var(--accent)' : 'var(--panel)',
-              color: aba === 'usuarios' ? '#04120a' : 'var(--text-dim)',
+              color: aba === 'usuarios' ? '#fff' : 'var(--text-dim)',
               border: '1px solid var(--border)',
             }}
           >
@@ -119,7 +119,7 @@ export default function PainelAdmin() {
             className="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
             style={{
               background: aba === 'leads' ? 'var(--accent)' : 'var(--panel)',
-              color: aba === 'leads' ? '#04120a' : 'var(--text-dim)',
+              color: aba === 'leads' ? '#fff' : 'var(--text-dim)',
               border: '1px solid var(--border)',
             }}
           >
@@ -149,7 +149,7 @@ export default function PainelAdmin() {
                 <div className="text-sm truncate flex items-center gap-2" style={{ color: 'var(--text)' }}>
                   {u.email}
                   {u.is_admin && (
-                    <span className="text-[10px] mono px-1.5 py-0.5 rounded" style={{ background: 'var(--accent)', color: '#04120a' }}>
+                    <span className="text-[10px] mono px-1.5 py-0.5 rounded" style={{ background: 'var(--accent)', color: '#fff' }}>
                       admin
                     </span>
                   )}

@@ -7,10 +7,12 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
+  const [precisaReset, setPrecisaReset] = useState(false);
   const [carregando, setCarregando] = useState(false);
 
   async function entrar() {
     setErro('');
+    setPrecisaReset(false);
     setCarregando(true);
     try {
       const res = await fetch('/api/auth/login', {
@@ -19,7 +21,10 @@ export default function Login() {
         body: JSON.stringify({ email, senha }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.erro);
+      if (!res.ok) {
+        if (data.precisaReset) setPrecisaReset(true);
+        throw new Error(data.erro);
+      }
       router.push('/dashboard');
       router.refresh();
     } catch (e: any) {
@@ -30,42 +35,39 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6" style={{ background: 'var(--bg)' }}>
-      <div className="w-full max-w-sm p-8 rounded-xl" style={{ background: 'var(--panel)', border: '1px solid var(--border)' }}>
-        <h1 className="text-lg font-semibold mb-1" style={{ color: 'var(--text)' }}>Entrar</h1>
-        <p className="text-sm mb-6" style={{ color: 'var(--text-dim)' }}>Acesse o Radar de Leads</p>
+    <div className="min-h-screen flex items-center justify-center px-6 relative" style={{ background: 'var(--bg)' }}>
+      <div className="absolute inset-0 dot-grid pointer-events-none" />
+      <div className="w-full max-w-sm p-8 rounded-2xl relative card">
+        <div className="flex items-center gap-2 mb-6">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--accent)' }}>
+            <span style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>R</span>
+          </div>
+          <span className="font-semibold" style={{ color: 'var(--text)' }}>Radar de Leads</span>
+        </div>
 
-        <input
-          className="input-radar mb-3"
-          placeholder="E-mail"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          className="input-radar mb-4"
-          placeholder="Senha"
-          type="password"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && entrar()}
-        />
+        <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--text)' }}>Bem-vindo de volta</h1>
+        <p className="text-sm mb-6" style={{ color: 'var(--text-dim)' }}>Entre para acessar seus leads</p>
 
-        {erro && <p className="text-xs mb-4" style={{ color: 'var(--danger)' }}>{erro}</p>}
+        <input className="input-radar mb-3" placeholder="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input className="input-radar mb-4" placeholder="Senha" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && entrar()} />
 
-        <button
-          onClick={entrar}
-          disabled={carregando}
-          className="w-full py-3 rounded-lg text-sm font-semibold disabled:opacity-60"
-          style={{ background: 'var(--accent)', color: '#04120a' }}
-        >
+        {erro && (
+          <div className="mb-4 px-3 py-2 rounded-lg text-xs" style={{ background: 'var(--danger-soft)', color: 'var(--danger)' }}>
+            {erro}
+            {precisaReset && (
+              <a href="/esqueci-senha" className="block mt-1 font-semibold underline">Redefinir senha por e-mail →</a>
+            )}
+          </div>
+        )}
+
+        <button onClick={entrar} disabled={carregando} className="btn-primario">
           {carregando ? 'Entrando…' : 'Entrar'}
         </button>
 
-        <p className="text-sm text-center mt-5" style={{ color: 'var(--text-dim)' }}>
-          Não tem conta?{' '}
-          <a href="/cadastro" style={{ color: 'var(--accent)' }}>Cadastre-se</a>
-        </p>
+        <div className="flex items-center justify-between mt-5 text-sm">
+          <a href="/esqueci-senha" style={{ color: 'var(--text-dim)' }}>Esqueci a senha</a>
+          <a href="/cadastro" style={{ color: 'var(--accent)', fontWeight: 500 }}>Criar conta</a>
+        </div>
       </div>
     </div>
   );

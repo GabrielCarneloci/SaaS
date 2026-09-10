@@ -26,7 +26,7 @@ interface Lead {
 
 type Ordenacao = 'recentes' | 'nome' | 'avaliacao';
 
-const CORES = { accent: '#4ade80', cyan: '#22d3ee', dim: '#6b7a70', border: '#1e2a22', danger: '#f87171' };
+const CORES = { accent: '#6366f1', cyan: '#0891b2', dim: '#71717a', border: '#e8e8ec', danger: '#ef4444', success: '#10b981' };
 
 export default function Dashboard() {
   const router = useRouter();
@@ -338,7 +338,7 @@ export default function Dashboard() {
             onClick={buscarLeads}
             disabled={carregando}
             className="w-full py-3.5 rounded-lg text-sm font-semibold transition-all disabled:opacity-60 mt-1"
-            style={{ background: 'var(--accent)', color: '#04120a' }}
+            style={{ background: 'var(--accent)', color: '#fff' }}
           >
             {carregando ? 'Varrendo o mapa…' : 'Iniciar varredura'}
           </button>
@@ -375,7 +375,7 @@ export default function Dashboard() {
             ) : (
               <div className="flex gap-2">
                 <a href="/login" className="flex-1 text-center text-xs py-2 rounded-lg" style={{ border: '1px solid var(--border-bright)', color: 'var(--text-dim)' }}>Entrar</a>
-                <a href="/cadastro" className="flex-1 text-center text-xs py-2 rounded-lg font-semibold" style={{ background: 'var(--accent)', color: '#04120a' }}>Criar conta</a>
+                <a href="/cadastro" className="flex-1 text-center text-xs py-2 rounded-lg font-semibold" style={{ background: 'var(--accent)', color: '#fff' }}>Criar conta</a>
               </div>
             )}
           </div>
@@ -464,13 +464,13 @@ export default function Dashboard() {
               <div className="flex items-center rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
                 {[0, 3, 4, 4.5].map((n) => (
                   <button key={n} onClick={() => setNotaMin(n)} className="px-3 py-2 text-xs mono transition-colors"
-                    style={{ background: notaMin === n ? 'var(--accent)' : 'var(--panel)', color: notaMin === n ? '#04120a' : 'var(--text-dim)' }}>
+                    style={{ background: notaMin === n ? 'var(--accent)' : 'var(--panel)', color: notaMin === n ? '#fff' : 'var(--text-dim)' }}>
                     {n === 0 ? 'Todas' : `${n}★`}
                   </button>
                 ))}
               </div>
               <button onClick={() => setSoNaoContatados((v) => !v)} className="px-3.5 py-2 rounded-lg text-xs font-medium transition-colors"
-                style={{ background: soNaoContatados ? 'var(--accent)' : 'var(--panel)', color: soNaoContatados ? '#04120a' : 'var(--text-dim)', border: '1px solid var(--border)' }}>
+                style={{ background: soNaoContatados ? 'var(--accent)' : 'var(--panel)', color: soNaoContatados ? '#fff' : 'var(--text-dim)', border: '1px solid var(--border)' }}>
                 Só não contatados
               </button>
             </div>
@@ -575,7 +575,7 @@ export default function Dashboard() {
                     <div className="text-3xl font-bold mb-1" style={{ color: 'var(--accent)' }}>{leads.length}</div>
                     <p className="text-sm mb-1" style={{ color: 'var(--text)' }}>empresas sem site encontradas</p>
                     <p className="text-xs mb-6" style={{ color: 'var(--text-dim)' }}>Crie uma conta grátis para ver nomes, endereços e telefones.</p>
-                    <a href="/cadastro" className="block w-full py-3 rounded-lg text-sm font-semibold mb-2" style={{ background: 'var(--accent)', color: '#04120a' }}>Criar conta grátis</a>
+                    <a href="/cadastro" className="block w-full py-3 rounded-lg text-sm font-semibold mb-2" style={{ background: 'var(--accent)', color: '#fff' }}>Criar conta grátis</a>
                     <a href="/login" className="block text-xs" style={{ color: 'var(--text-dim)' }}>Já tenho conta — entrar</a>
                   </div>
                 </div>
@@ -594,7 +594,7 @@ export default function Dashboard() {
             <p className="text-sm mb-6" style={{ color: 'var(--text-dim)' }}>Isso apaga permanentemente os {leads.length} leads salvos. Não dá pra desfazer.</p>
             <div className="flex gap-3 justify-end">
               <button onClick={() => setConfirmarLimpar(false)} className="px-4 py-2 rounded-lg text-sm font-medium" style={{ background: 'var(--bg)', border: '1px solid var(--border-bright)', color: 'var(--text-dim)' }}>Cancelar</button>
-              <button onClick={limparTudo} className="px-4 py-2 rounded-lg text-sm font-semibold" style={{ background: 'var(--danger)', color: '#1a0606' }}>Limpar tudo</button>
+              <button onClick={limparTudo} className="px-4 py-2 rounded-lg text-sm font-semibold" style={{ background: 'var(--danger)', color: '#fff' }}>Limpar tudo</button>
             </div>
           </div>
         </div>
@@ -656,7 +656,7 @@ function RadarIcon({ ativo }: { ativo: boolean }) {
 }
 
 function CopyIcon() { return (<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>); }
-function CheckIcon() { return (<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#04120a" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>); }
+function CheckIcon() { return (<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>); }
 function DownloadIcon() { return (<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>); }
 function TrashIcon() { return (<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>); }
 function MapIcon() { return (<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 20l-5.5 2V6l5.5-2m0 16l6-2m-6 2V4m6 14l5.5 2V4L15 2m0 16V2m0 0l-6 2" /></svg>); }

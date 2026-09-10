@@ -1,18 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #0a0e0c;
-  --panel: #101613;
-  --panel-hover: #141d18;
-  --border: #1e2a22;
-  --border-bright: #2a3a30;
-  --text: #e8ede9;
-  --text-dim: #6b7a70;
-  --text-faint: #47534b;
-  --accent: #4ade80;
-  --accent-dim: #22633f;
-  --cyan: #22d3ee;
-  --danger: #f87171;
+  /* Tema claro elegante — inspirado em Stripe/Linear */
+  --bg: #fafafa;
+  --bg-subtle: #f4f4f5;
+  --panel: #ffffff;
+  --panel-hover: #fafafa;
+  --border: #e8e8ec;
+  --border-strong: #d4d4d8;
+  --text: #18181b;
+  --text-dim: #52525b;
+  --text-faint: #a1a1aa;
+  --accent: #6366f1;        /* indigo */
+  --accent-hover: #4f46e5;
+  --accent-soft: #eef2ff;
+  --success: #10b981;
+  --success-soft: #ecfdf5;
+  --cyan: #0891b2;
+  --danger: #ef4444;
+  --danger-soft: #fef2f2;
+  --amber: #f59e0b;
+  --shadow-sm: 0 1px 2px rgba(24,24,27,0.05);
+  --shadow: 0 1px 3px rgba(24,24,27,0.08), 0 1px 2px rgba(24,24,27,0.04);
+  --shadow-md: 0 4px 12px rgba(24,24,27,0.08), 0 2px 4px rgba(24,24,27,0.04);
+  --shadow-lg: 0 12px 32px rgba(24,24,27,0.10), 0 4px 8px rgba(24,24,27,0.04);
 }
 
 * { box-sizing: border-box; }
@@ -20,102 +31,125 @@
 html, body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-inter), -apple-system, sans-serif;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, sans-serif;
   margin: 0;
   padding: 0;
+  -webkit-font-smoothing: antialiased;
 }
 
-.mono { font-family: var(--font-mono), monospace; }
+.mono { font-family: var(--font-mono), ui-monospace, monospace; }
 
-::selection { background: var(--accent); color: var(--bg); }
+::selection { background: var(--accent-soft); color: var(--accent-hover); }
 
-/* Grid de radar no fundo */
-.radar-grid {
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 40px 40px;
-  background-position: -1px -1px;
-  opacity: 0.25;
+/* Grid de fundo bem sutil */
+.dot-grid {
+  background-image: radial-gradient(circle, var(--border-strong) 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.4;
 }
 
-/* Varredura de radar */
-@keyframes sweep {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.radar-sweep {
-  animation: sweep 2s linear infinite;
-  transform-origin: center;
-}
+@keyframes sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.radar-sweep { animation: sweep 2s linear infinite; transform-origin: center; }
 
 @keyframes pulse-ring {
-  0% { transform: scale(0.8); opacity: 0.8; }
+  0% { transform: scale(0.8); opacity: 0.6; }
   100% { transform: scale(2.2); opacity: 0; }
 }
 .pulse-ring { animation: pulse-ring 1.8s ease-out infinite; }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.fade-up { animation: fade-up 0.4s ease-out backwards; }
+.fade-up { animation: fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
 
-/* Scrollbar discreta */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 ::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 5px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
 
 input::placeholder { color: var(--text-faint); }
 
-/* Componentes reutilizáveis */
+/* ===== Componentes ===== */
 .input-radar {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.6rem;
   font-size: 0.875rem;
-  background: var(--bg);
-  border: 1px solid var(--border-bright);
+  background: var(--panel);
+  border: 1px solid var(--border-strong);
   color: var(--text);
   outline: none;
-  transition: border-color 0.15s;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
 }
-.input-radar:focus { border-color: var(--accent); }
+.input-radar:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.input-radar:disabled { background: var(--bg-subtle); color: var(--text-faint); cursor: not-allowed; }
+
+.btn-primario {
+  width: 100%;
+  padding: 0.8rem;
+  border-radius: 0.6rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
+}
+.btn-primario:hover:not(:disabled) { background: var(--accent-hover); box-shadow: var(--shadow-md); }
+.btn-primario:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .btn-secundario {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 0.5rem 0.85rem;
-  border-radius: 0.5rem;
+  border-radius: 0.6rem;
   font-size: 0.8125rem;
   font-weight: 500;
   background: var(--panel);
-  border: 1px solid var(--border-bright);
+  border: 1px solid var(--border-strong);
   color: var(--text-dim);
   cursor: pointer;
   transition: all 0.15s;
+  box-shadow: var(--shadow-sm);
 }
-.btn-secundario:hover:not(:disabled) { background: var(--panel-hover); border-color: var(--text-faint); }
-.btn-secundario:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-secundario:hover:not(:disabled) { background: var(--bg-subtle); border-color: var(--text-faint); }
+.btn-secundario:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .icone-acao {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
-  border: 1px solid var(--border-bright);
+  border-radius: 8px;
+  border: 1px solid var(--border-strong);
+  background: var(--panel);
   color: var(--text-dim);
   cursor: pointer;
   transition: all 0.15s;
 }
-.icone-acao:hover { border-color: var(--accent); color: var(--accent); }
-@media (min-width: 768px) {
-  .group:hover .icone-acao { opacity: 1; }
-  .icone-acao { opacity: 0; }
-}
+.icone-acao:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 
-select.input-radar, select { cursor: pointer; }
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  box-shadow: var(--shadow);
+  transition: all 0.2s;
+}
+.card:hover { box-shadow: var(--shadow-md); border-color: var(--border-strong); }
+
+select { cursor: pointer; }

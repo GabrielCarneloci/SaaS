@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 import { pool } from '@/lib/db';
 import { usuarioDaSessao } from '@/lib/auth';
+import { checarRateLimit } from '@/lib/rateLimit';
 
 const CAMPOS = [
   'places.displayName',
@@ -65,6 +66,15 @@ function formatarHorario(horario: any): string | null {
 export async function POST(req: NextRequest) {
   const sessao = await usuarioDaSessao();
   if (!sessao) return NextResponse.json({ erro: 'Não autenticado' }, { status: 401 });
+
+  // Rate limit por usuário: no máximo 30 buscas por hora
+  const limite = await checarRateLimit(`busca:${sessao.usuarioId}`, 30, 60 * 60);
+  if (!limite.permitido) {
+    return NextResponse.json(
+      { erro: `Limite de buscas atingido. Tente novamente em ${Math.ceil(limite.resetaEm / 60)} minutos.` },
+      { status: 429 }
+    );
+  }
 
   const { nicho, localidade } = await req.json();
   if (!nicho || !localidade) {
