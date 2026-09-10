@@ -4,9 +4,8 @@ create table if not exists usuarios (
   id serial primary key,
   email text unique not null,
   senha_hash text not null,
-  status_assinatura text not null default 'inativa', -- inativa | ativa | cancelada
-  assinatura_expira_em timestamp,
-  mp_preapproval_id text,
+  bloqueado boolean not null default false,
+  is_admin boolean not null default false,
   criado_em timestamp default now()
 );
 

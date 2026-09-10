@@ -1,14 +1,21 @@
-// Protege rotas: exige login para /dashboard e para as APIs de leads
+// Protege rotas: exige login para /dashboard e /admin, e para as APIs de leads
 import { NextRequest, NextResponse } from 'next/server';
 import { verificarToken, NOME_COOKIE_SESSAO } from '@/lib/auth';
 
 export async function middleware(req: NextRequest) {
+  // A rota de prévia é pública (mostra resultados mascarados sem login)
+  if (req.nextUrl.pathname.startsWith('/api/leads/preview')) {
+    return NextResponse.next();
+  }
+
   const token = req.cookies.get(NOME_COOKIE_SESSAO)?.value;
   const sessao = token ? await verificarToken(token) : null;
 
   const rotaProtegida =
     req.nextUrl.pathname.startsWith('/dashboard') ||
-    req.nextUrl.pathname.startsWith('/api/leads');
+    req.nextUrl.pathname.startsWith('/admin') ||
+    req.nextUrl.pathname.startsWith('/api/leads') ||
+    req.nextUrl.pathname.startsWith('/api/admin');
 
   if (rotaProtegida && !sessao) {
     if (req.nextUrl.pathname.startsWith('/api/')) {
@@ -21,5 +28,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/api/leads/:path*'],
+  matcher: ['/dashboard/:path*', '/admin/:path*', '/api/leads/:path*', '/api/admin/:path*'],
 };

@@ -20,7 +20,7 @@ export default function Cadastro() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.erro);
-      router.push('/assinatura');
+      router.push('/dashboard');
       router.refresh();
     } catch (e: any) {
       setErro(e.message || 'Falha ao cadastrar');

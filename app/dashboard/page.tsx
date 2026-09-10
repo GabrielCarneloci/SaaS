@@ -16,6 +16,8 @@ type Ordenacao = 'recentes' | 'nome' | 'avaliacao';
 export default function Dashboard() {
   const router = useRouter();
   const [emailUsuario, setEmailUsuario] = useState('');
+  const [ehAdmin, setEhAdmin] = useState(false);
+  const [logado, setLogado] = useState<boolean | null>(null); // null = ainda verificando
   const [nicho, setNicho] = useState('');
   const [localidade, setLocalidade] = useState('');
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -32,17 +34,23 @@ export default function Dashboard() {
 
   useEffect(() => {
     conferirAcesso();
-    carregarLeadsSalvos();
   }, []);
 
   async function conferirAcesso() {
     try {
       const res = await fetch('/api/auth/eu');
       const data = await res.json();
-      if (!data.usuario) return router.push('/login');
-      if (data.usuario.status_assinatura !== 'ativa') return router.push('/assinatura');
-      setEmailUsuario(data.usuario.email);
-    } catch {}
+      if (data.usuario) {
+        setLogado(true);
+        setEmailUsuario(data.usuario.email);
+        setEhAdmin(data.usuario.is_admin);
+        carregarLeadsSalvos();
+      } else {
+        setLogado(false);
+      }
+    } catch {
+      setLogado(false);
+    }
   }
 
   async function sair() {
@@ -66,14 +74,37 @@ export default function Dashboard() {
     setErro('');
     setCarregando(true);
     try {
-      const res = await fetch('/api/leads/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nicho, localidade }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.erro);
-      await carregarLeadsSalvos();
+      if (logado) {
+        // Busca real: salva e recarrega os leads do usuário
+        const res = await fetch('/api/leads/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nicho, localidade }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro);
+        await carregarLeadsSalvos();
+      } else {
+        // Prévia pública: resultados mascarados, exibidos borrados
+        const res = await fetch('/api/leads/preview', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nicho, localidade }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro);
+        // popula com dados mascarados só para render borrado
+        setLeads(
+          (data.leads ?? []).map((l: any, i: number) => ({
+            id: i,
+            nome: l.nome,
+            endereco: l.endereco,
+            avaliacao: l.avaliacao,
+            telefone: l.telefone,
+            contatado: false,
+          }))
+        );
+      }
     } catch (e: any) {
       setErro(e.message || 'Falha na varredura');
     } finally {
@@ -239,12 +270,34 @@ export default function Dashboard() {
             </p>
 
             <div className="h-px my-4" style={{ background: 'var(--border)' }} />
-            <div className="flex items-center justify-between">
-              <span className="text-xs truncate" style={{ color: 'var(--text-dim)' }}>{emailUsuario}</span>
-              <button onClick={sair} className="text-xs shrink-0 ml-2" style={{ color: 'var(--text-faint)' }}>
-                Sair
-              </button>
-            </div>
+            {logado ? (
+              <>
+                {ehAdmin && (
+                  <a
+                    href="/admin"
+                    className="block text-xs mb-3 px-3 py-2 rounded-lg text-center font-medium"
+                    style={{ background: 'var(--bg)', border: '1px solid var(--border-bright)', color: 'var(--cyan)' }}
+                  >
+                    Painel admin
+                  </a>
+                )}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs truncate" style={{ color: 'var(--text-dim)' }}>{emailUsuario}</span>
+                  <button onClick={sair} className="text-xs shrink-0 ml-2" style={{ color: 'var(--text-faint)' }}>
+                    Sair
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="flex gap-2">
+                <a href="/login" className="flex-1 text-center text-xs py-2 rounded-lg" style={{ border: '1px solid var(--border-bright)', color: 'var(--text-dim)' }}>
+                  Entrar
+                </a>
+                <a href="/cadastro" className="flex-1 text-center text-xs py-2 rounded-lg font-semibold" style={{ background: 'var(--accent)', color: '#04120a' }}>
+                  Criar conta
+                </a>
+              </div>
+            )}
           </div>
         </div>
       </aside>
@@ -269,6 +322,7 @@ export default function Dashboard() {
               </span>
             </div>
 
+            {logado && (
             <div className="flex items-center gap-2">
               <button
                 onClick={exportarCSV}
@@ -288,10 +342,11 @@ export default function Dashboard() {
                 <TrashIcon /> Limpar
               </button>
             </div>
+            )}
           </div>
 
           {/* Filtros */}
-          {leads.length > 0 && (
+          {logado && leads.length > 0 && (
             <div className="flex items-center gap-2 flex-wrap">
               <input
                 className="px-3.5 py-2 rounded-lg text-sm outline-none flex-1 min-w-[160px]"
@@ -347,7 +402,9 @@ export default function Dashboard() {
           {carregando && leads.length === 0 ? (
             <EstadoVarredura />
           ) : leadsFiltrados.length > 0 ? (
-            <div>
+            <div className="relative">
+             {/* Conteúdo (borrado quando visitante) */}
+             <div style={logado === false ? { filter: 'blur(6px)', pointerEvents: 'none', userSelect: 'none' } : undefined}>
               <div
                 className="hidden md:grid grid-cols-[auto_1fr_110px_180px] gap-4 px-8 py-3 text-[11px] mono uppercase tracking-wider sticky top-0 items-center"
                 style={{ color: 'var(--text-faint)', background: 'var(--bg)', borderBottom: '1px solid var(--border)' }}
@@ -427,6 +484,34 @@ export default function Dashboard() {
                   </div>
                 </div>
               ))}
+             </div>
+
+             {/* Overlay de convite para visitantes */}
+             {logado === false && (
+               <div className="absolute inset-0 flex items-start justify-center pt-24 px-6" style={{ background: 'linear-gradient(to bottom, transparent, var(--bg) 70%)' }}>
+                 <div className="text-center max-w-sm p-8 rounded-2xl" style={{ background: 'var(--panel)', border: '1px solid var(--border-bright)' }}>
+                   <div className="text-3xl font-bold mb-1" style={{ color: 'var(--accent)' }}>
+                     {leads.length}
+                   </div>
+                   <p className="text-sm mb-1" style={{ color: 'var(--text)' }}>
+                     empresas sem site encontradas
+                   </p>
+                   <p className="text-xs mb-6" style={{ color: 'var(--text-dim)' }}>
+                     Crie uma conta grátis para ver nomes, endereços e telefones.
+                   </p>
+                   <a
+                     href="/cadastro"
+                     className="block w-full py-3 rounded-lg text-sm font-semibold mb-2"
+                     style={{ background: 'var(--accent)', color: '#04120a' }}
+                   >
+                     Criar conta grátis
+                   </a>
+                   <a href="/login" className="block text-xs" style={{ color: 'var(--text-dim)' }}>
+                     Já tenho conta — entrar
+                   </a>
+                 </div>
+               </div>
+             )}
             </div>
           ) : (
             <EstadoVazio temLeads={leads.length > 0} />

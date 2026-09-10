@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const resultado = await pool.query(
-      'select id, senha_hash from usuarios where email = $1',
+      'select id, senha_hash, bloqueado from usuarios where email = $1',
       [email]
     );
     if (resultado.rowCount === 0) {
@@ -23,6 +23,9 @@ export async function POST(req: NextRequest) {
     const senhaCorreta = await conferirSenha(senha, usuario.senha_hash);
     if (!senhaCorreta) {
       return NextResponse.json({ erro: 'E-mail ou senha incorretos' }, { status: 401 });
+    }
+    if (usuario.bloqueado) {
+      return NextResponse.json({ erro: 'Sua conta está bloqueada. Fale com o suporte.' }, { status: 403 });
     }
 
     const token = await gerarToken(usuario.id);

@@ -1,5 +1,6 @@
-import { redirect } from 'next/navigation';
+// Página inicial pública — mostra o mesmo painel, mas em modo visitante
+import Dashboard from './dashboard/page';
 
 export default function Home() {
-  redirect('/login');
+  return <Dashboard />;
 }
