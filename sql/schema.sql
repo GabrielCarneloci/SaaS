@@ -1,4 +1,4 @@
--- Execute este script no PostgreSQL do servidor para criar as tabelas
+-- Execute este script no PostgreSQL do servidor para criar as tabelas do zero
 
 create table if not exists usuarios (
   id serial primary key,
@@ -16,6 +16,13 @@ create table if not exists leads (
   endereco text,
   telefone text,
   avaliacao numeric,
+  total_avaliacoes integer,
+  categoria text,
+  status_negocio text,
+  horario_funcionamento text,
+  google_maps_url text,
+  latitude numeric,
+  longitude numeric,
   nicho text,
   localidade text,
   contatado boolean default false,
