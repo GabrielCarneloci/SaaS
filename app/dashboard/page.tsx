@@ -397,7 +397,7 @@ export default function Dashboard() {
       >
         <div className="p-6 pb-4">
           <div className="flex items-center justify-between mb-6">
-            <span className="destaque gradiente text-[24px] leading-none">Radar</span>
+            <span className="destaque grad-texto text-[24px] leading-none">Radar</span>
             <button
               onClick={alternarTema}
               className="acao-discreta"
@@ -683,13 +683,13 @@ export default function Dashboard() {
                 ...(visitante ? { filter: 'blur(5px)', pointerEvents: 'none', userSelect: 'none' } : {}),
               }}
             >
-              {visiveis.map((lead) => (
+              {visiveis.map((lead, i) => (
                 <button
                   key={lead.id}
                   onClick={() => escolherLead(lead.id)}
                   data-sel={selecionado === lead.id ? '1' : '0'}
-                  className="cartao cartao-clicavel overflow-hidden"
-                  style={{ opacity: lead.contatado ? 0.62 : 1 }}
+                  className="cartao cartao-clicavel overflow-hidden surge"
+                  style={{ opacity: lead.contatado ? 0.62 : 1, animationDelay: `${Math.min(i * 0.03, 0.4)}s` }}
                 >
                   <div className={`faixa ${lead.contatado ? 'faixa-feito' : ''}`} />
                   <div className="p-4">
@@ -739,7 +739,7 @@ export default function Dashboard() {
             {visitante && (
               <div className="absolute inset-0 flex items-start justify-center pt-16 px-4">
                 <div className="cartao p-7 text-center max-w-[340px] w-full">
-                  <p className="destaque gradiente text-[46px] leading-none mb-1">{leads.length}</p>
+                  <p className="destaque grad-texto text-[46px] leading-none mb-1">{leads.length}</p>
                   <p className="text-[14px] font-medium mb-1" style={{ color: 'var(--ink)' }}>
                     empresas sem site nessa região
                   </p>
