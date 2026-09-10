@@ -11,7 +11,7 @@ export async function GET() {
     `select id, nome, endereco, telefone, avaliacao::float8 as avaliacao, total_avaliacoes, categoria,
             status_negocio, horario_funcionamento, google_maps_url,
             latitude::float8 as latitude, longitude::float8 as longitude,
-            nicho, localidade, contatado, notas, tags, criado_em
+            nicho, localidade, contatado, notas, tags, mensagem_ia, resumo_ia, criado_em
      from leads where usuario_id = $1 order by id desc`,
     [sessao.usuarioId]
   );

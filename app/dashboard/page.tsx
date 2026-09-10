@@ -29,6 +29,8 @@ interface Lead {
   contatado: boolean;
   notas: string | null;
   tags: string[] | null;
+  mensagem_ia: string | null;
+  resumo_ia: string | null;
 }
 
 interface ItemHistorico {
@@ -74,6 +76,7 @@ export default function Dashboard() {
   const [rascunhoNota, setRascunhoNota] = useState('');
   const [rascunhoTags, setRascunhoTags] = useState('');
   const [salvandoNota, setSalvandoNota] = useState(false);
+  const [gerandoIA, setGerandoIA] = useState(false);
 
   /* ---------- init ---------- */
 
@@ -180,7 +183,7 @@ export default function Dashboard() {
             avaliacao: l.avaliacao, total_avaliacoes: null, categoria: null,
             status_negocio: null, horario_funcionamento: null, google_maps_url: null,
             latitude: null, longitude: null, nicho, localidade, contatado: false,
-            notas: null, tags: null,
+            notas: null, tags: null, mensagem_ia: null, resumo_ia: null,
           }))
         );
       }
@@ -229,6 +232,28 @@ export default function Dashboard() {
       mostrarAviso('A anotação não foi salva');
     } finally {
       setSalvandoNota(false);
+    }
+  }
+
+  async function gerarComIA(forcar: boolean) {
+    if (selecionado == null) return;
+    setGerandoIA(true);
+    try {
+      const res = await fetch('/api/leads/ia', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: selecionado, forcar }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.erro);
+      setLeads((p) =>
+        p.map((l) => (l.id === selecionado ? { ...l, mensagem_ia: data.mensagem, resumo_ia: data.resumo } : l))
+      );
+      mostrarAviso(data.doCache ? 'Já tínhamos gerado isso antes' : 'Gerado com IA');
+    } catch (e: any) {
+      mostrarAviso(e.message || 'Não foi possível gerar agora');
+    } finally {
+      setGerandoIA(false);
     }
   }
 
@@ -812,6 +837,50 @@ export default function Dashboard() {
                 </button>
               </div>
 
+              {/* ===== Inteligência artificial ===== */}
+              <div className="p-4 rounded-2xl mb-5" style={{ background: 'var(--violeta-lav)', border: '1.5px solid var(--line)' }}>
+                <div className="flex items-center justify-between mb-2.5">
+                  <span className="text-[12.5px] font-semibold flex items-center gap-1.5" style={{ color: 'var(--violeta)' }}>
+                    <IconeCentelha /> Gerado com IA
+                  </span>
+                  {(leadAtual.mensagem_ia || leadAtual.resumo_ia) && (
+                    <button onClick={() => gerarComIA(true)} disabled={gerandoIA} className="text-[11.5px] font-medium" style={{ color: 'var(--violeta)' }}>
+                      {gerandoIA ? 'Gerando…' : 'Gerar de novo'}
+                    </button>
+                  )}
+                </div>
+
+                {leadAtual.resumo_ia && (
+                  <div className="mb-3">
+                    <p className="text-[11px] font-medium mb-1" style={{ color: 'var(--ink-3)' }}>Resumo da oportunidade</p>
+                    <p className="text-[12.5px] leading-relaxed" style={{ color: 'var(--ink)' }}>{leadAtual.resumo_ia}</p>
+                  </div>
+                )}
+
+                {leadAtual.mensagem_ia && (
+                  <div className="mb-3">
+                    <p className="text-[11px] font-medium mb-1" style={{ color: 'var(--ink-3)' }}>Mensagem sugerida</p>
+                    <p className="text-[12.5px] leading-relaxed p-2.5 rounded-lg" style={{ color: 'var(--ink)', background: 'var(--surface)' }}>
+                      {leadAtual.mensagem_ia}
+                    </p>
+                  </div>
+                )}
+
+                {leadAtual.mensagem_ia || leadAtual.resumo_ia ? (
+                  <button
+                    onClick={() => copiar(leadAtual.mensagem_ia || '', 'Mensagem copiada')}
+                    className="acao-discreta w-full justify-center"
+                    disabled={!leadAtual.mensagem_ia}
+                  >
+                    Copiar mensagem
+                  </button>
+                ) : (
+                  <button onClick={() => gerarComIA(false)} disabled={gerandoIA} className="acao w-full">
+                    {gerandoIA ? 'Gerando…' : 'Gerar mensagem e resumo'}
+                  </button>
+                )}
+              </div>
+
               <div className="pt-4" style={{ borderTop: '1.5px solid var(--line)' }}>
                 <label htmlFor="tags" className="block text-[12.5px] font-medium mb-1.5" style={{ color: 'var(--ink-2)' }}>
                   Etiquetas, separadas por vírgula
@@ -908,6 +977,14 @@ function Dado({ rotulo, valor, destaque }: { rotulo: string; valor: string; dest
         {valor}
       </dd>
     </div>
+  );
+}
+
+function IconeCentelha() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z" />
+    </svg>
   );
 }
 
