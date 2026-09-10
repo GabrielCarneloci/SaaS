@@ -19,7 +19,12 @@ export default function Dashboard() {
   const [ehAdmin, setEhAdmin] = useState(false);
   const [logado, setLogado] = useState<boolean | null>(null); // null = ainda verificando
   const [nicho, setNicho] = useState('');
-  const [localidade, setLocalidade] = useState('');
+  const [uf, setUf] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [estados, setEstados] = useState<{ sigla: string; nome: string }[]>([]);
+  const [cidades, setCidades] = useState<string[]>([]);
+  const [carregandoCidades, setCarregandoCidades] = useState(false);
+  const localidade = uf && cidade ? `${cidade}, ${uf}` : '';
   const [leads, setLeads] = useState<Lead[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
@@ -34,7 +39,34 @@ export default function Dashboard() {
 
   useEffect(() => {
     conferirAcesso();
+    carregarEstados();
   }, []);
+
+  async function carregarEstados() {
+    try {
+      const res = await fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome');
+      const dados = await res.json();
+      setEstados(dados.map((e: any) => ({ sigla: e.sigla, nome: e.nome })));
+    } catch {}
+  }
+
+  async function selecionarUf(novaUf: string) {
+    setUf(novaUf);
+    setCidade('');
+    setCidades([]);
+    if (!novaUf) return;
+    setCarregandoCidades(true);
+    try {
+      const res = await fetch(
+        `https://servicodados.ibge.gov.br/api/v1/localidades/estados/${novaUf}/municipios`
+      );
+      const dados = await res.json();
+      setCidades(dados.map((c: any) => c.nome));
+    } catch {
+    } finally {
+      setCarregandoCidades(false);
+    }
+  }
 
   async function conferirAcesso() {
     try {
@@ -233,14 +265,33 @@ export default function Dashboard() {
             />
           </Campo>
 
-          <Campo label="Localidade">
-            <input
+          <Campo label="Estado">
+            <select
               className="input-radar"
-              placeholder="Cidade, Estado"
-              value={localidade}
-              onChange={(e) => setLocalidade(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && buscarLeads()}
-            />
+              value={uf}
+              onChange={(e) => selecionarUf(e.target.value)}
+            >
+              <option value="">Selecione o estado</option>
+              {estados.map((e) => (
+                <option key={e.sigla} value={e.sigla}>{e.nome}</option>
+              ))}
+            </select>
+          </Campo>
+
+          <Campo label="Cidade">
+            <select
+              className="input-radar"
+              value={cidade}
+              onChange={(e) => setCidade(e.target.value)}
+              disabled={!uf || carregandoCidades}
+            >
+              <option value="">
+                {carregandoCidades ? 'Carregando cidades…' : uf ? 'Selecione a cidade' : 'Escolha o estado primeiro'}
+              </option>
+              {cidades.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
           </Campo>
 
           <button
