@@ -68,3 +68,54 @@ html, body {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
 
 input::placeholder { color: var(--text-faint); }
+
+/* Componentes reutilizáveis */
+.input-radar {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  background: var(--bg);
+  border: 1px solid var(--border-bright);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input-radar:focus { border-color: var(--accent); }
+
+.btn-secundario {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  background: var(--panel);
+  border: 1px solid var(--border-bright);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-secundario:hover:not(:disabled) { background: var(--panel-hover); border-color: var(--text-faint); }
+.btn-secundario:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.icone-acao {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid var(--border-bright);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.icone-acao:hover { border-color: var(--accent); color: var(--accent); }
+@media (min-width: 768px) {
+  .group:hover .icone-acao { opacity: 1; }
+  .icone-acao { opacity: 0; }
+}
+
+select.input-radar, select { cursor: pointer; }

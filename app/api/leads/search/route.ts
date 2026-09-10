@@ -1,5 +1,5 @@
-// Rota que busca empresas no Google Maps (via Google Places API - New)
-// e filtra apenas as que NÃO possuem site cadastrado
+// Busca empresas no Google Maps (Google Places API - New) e filtra
+// apenas as que NÃO possuem site cadastrado
 import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 import { salvarLeads } from '@/lib/localStorage';
@@ -8,10 +8,7 @@ export async function POST(req: NextRequest) {
   const { nicho, localidade } = await req.json();
 
   if (!nicho || !localidade) {
-    return NextResponse.json(
-      { erro: 'Informe nicho e localidade' },
-      { status: 400 }
-    );
+    return NextResponse.json({ erro: 'Informe nicho e localidade' }, { status: 400 });
   }
 
   try {
@@ -37,13 +34,15 @@ export async function POST(req: NextRequest) {
 
     const semSite = estabelecimentos
       .filter((e: any) => !e.websiteUri && e.nationalPhoneNumber)
-      .map((e: any) => ({
+      .map((e: any, i: number) => ({
+        id: `${Date.now()}-${i}`,
         nome: e.displayName?.text ?? 'Sem nome',
         endereco: e.formattedAddress ?? '',
         avaliacao: e.rating ?? null,
         telefone: e.nationalPhoneNumber,
         nicho,
         localidade,
+        contatado: false,
         criado_em: new Date().toISOString(),
       }));
 
@@ -53,7 +52,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ total: semSite.length, leads: semSite });
   } catch (erro: any) {
-    console.error('Erro na busca de leads:', erro?.response?.data || erro.message);
+    console.error('Erro na busca:', erro?.response?.data || erro.message);
     return NextResponse.json({ erro: 'Falha ao buscar leads' }, { status: 500 });
   }
 }

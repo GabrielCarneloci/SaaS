@@ -1,19 +1,20 @@
-// Armazenamento em arquivo JSON. No Railway, aponte DATA_DIR para o volume
-// persistente configurado no serviço (ex: /data) para os leads não se perderem
-// a cada novo deploy. Localmente, sem configurar nada, usa a pasta ./data.
+// Armazenamento em arquivo JSON. No servidor (VPS/Railway), aponte DATA_DIR
+// para uma pasta persistente. Localmente usa a pasta ./data.
 import fs from 'fs';
 import path from 'path';
 
 const DIRETORIO = process.env.DATA_DIR || path.join(process.cwd(), 'data');
 const ARQUIVO = path.join(DIRETORIO, 'leads.json');
 
-interface Lead {
+export interface Lead {
+  id: string;
   nome: string;
   endereco: string;
   avaliacao: number | null;
   telefone: string;
   nicho: string;
   localidade: string;
+  contatado: boolean;
   criado_em: string;
 }
 
@@ -29,12 +30,36 @@ function garantirArquivo() {
 export function lerLeads(): Lead[] {
   garantirArquivo();
   const conteudo = fs.readFileSync(ARQUIVO, 'utf-8');
-  return JSON.parse(conteudo);
+  const leads = JSON.parse(conteudo);
+  // Compatibilidade com registros antigos sem id/contatado
+  return leads.map((l: any, i: number) => ({
+    id: l.id ?? `${l.criado_em ?? ''}-${i}`,
+    contatado: l.contatado ?? false,
+    ...l,
+  }));
+}
+
+function escrever(leads: Lead[]) {
+  garantirArquivo();
+  fs.writeFileSync(ARQUIVO, JSON.stringify(leads, null, 2), 'utf-8');
 }
 
 export function salvarLeads(novos: Lead[]) {
-  garantirArquivo();
   const atuais = lerLeads();
-  const atualizados = [...novos, ...atuais];
-  fs.writeFileSync(ARQUIVO, JSON.stringify(atualizados, null, 2), 'utf-8');
+  escrever([...novos, ...atuais]);
+}
+
+// Alterna o status "contatado" de um lead pelo id
+export function alternarContatado(id: string) {
+  const leads = lerLeads();
+  const atualizados = leads.map((l) =>
+    l.id === id ? { ...l, contatado: !l.contatado } : l
+  );
+  escrever(atualizados);
+  return atualizados;
+}
+
+// Apaga todos os leads
+export function limparLeads() {
+  escrever([]);
 }
