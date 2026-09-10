@@ -322,7 +322,7 @@ export default function Dashboard() {
   const progresso = leads.length ? Math.round((contatados / leads.length) * 100) : 0;
   const comAval = leads.filter((l) => l.avaliacao).length;
   const mediaAval = comAval > 0
-    ? (leads.reduce((s, l) => s + (l.avaliacao || 0), 0) / comAval).toFixed(1)
+    ? (leads.reduce((s, l) => s + (Number(l.avaliacao) || 0), 0) / comAval).toFixed(1)
     : '—';
   const comCoordenadas = useMemo(
     () => visiveis.filter((l) => l.latitude != null && l.longitude != null),

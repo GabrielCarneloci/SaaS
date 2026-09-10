@@ -8,7 +8,7 @@ export async function GET() {
   if (!admin) return NextResponse.json({ erro: 'Acesso negado' }, { status: 403 });
 
   const resultado = await pool.query(`
-    select l.id, l.nome, l.endereco, l.telefone, l.avaliacao, l.nicho, l.localidade, l.contatado, l.criado_em,
+    select l.id, l.nome, l.endereco, l.telefone, l.avaliacao::float8 as avaliacao, l.nicho, l.localidade, l.contatado, l.criado_em,
            u.email as usuario_email
     from leads l
     join usuarios u on u.id = l.usuario_id

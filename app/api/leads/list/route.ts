@@ -8,8 +8,9 @@ export async function GET() {
   if (!sessao) return NextResponse.json({ erro: 'Não autenticado' }, { status: 401 });
 
   const resultado = await pool.query(
-    `select id, nome, endereco, telefone, avaliacao, total_avaliacoes, categoria,
-            status_negocio, horario_funcionamento, google_maps_url, latitude, longitude,
+    `select id, nome, endereco, telefone, avaliacao::float8 as avaliacao, total_avaliacoes, categoria,
+            status_negocio, horario_funcionamento, google_maps_url,
+            latitude::float8 as latitude, longitude::float8 as longitude,
             nicho, localidade, contatado, notas, tags, criado_em
      from leads where usuario_id = $1 order by id desc`,
     [sessao.usuarioId]
