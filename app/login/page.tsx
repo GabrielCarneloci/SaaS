@@ -48,8 +48,8 @@ export default function Login() {
         <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--ink)' }}>Bem-vindo de volta</h1>
         <p className="text-sm mb-6" style={{ color: 'var(--ink-2)' }}>Entre para acessar seus leads</p>
 
-        <input className="campo mb-3" placeholder="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input className="campo mb-4" placeholder="Senha" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && entrar()} />
+        <input className="campo mb-3" placeholder="E-mail" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input className="campo mb-4" placeholder="Senha" type="password" autoComplete="current-password" value={senha} onChange={(e) => setSenha(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && entrar()} />
 
         {erro && (
           <div className="mb-4 px-3 py-2 rounded-lg text-xs" style={{ background: 'var(--danger-wash)', color: 'var(--danger)' }}>

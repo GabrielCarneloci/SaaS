@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     resposta.cookies.set(NOME_COOKIE_SESSAO, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'strict',
       maxAge: 60 * 60 * 24 * 30,
       path: '/',
     });
