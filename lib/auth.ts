@@ -1,14 +1,9 @@
-// Autenticação: senha, token de sessão em cookie, e sessões controladas no banco
-// (isso permite listar e revogar sessões, algo que um JWT puro não permite)
+// Autenticação: senha, sessão em banco de dados. As funções de JWT "puras"
+// (sem acesso a banco) ficam em lib/jwt.ts, para não quebrar o middleware (edge).
 import bcrypt from 'bcryptjs';
-import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import { pool } from './db';
-
-const SEGREDO = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'troque-este-segredo-em-producao'
-);
-const NOME_COOKIE = 'sessao';
+import { gerarToken, verificarToken, NOME_COOKIE_SESSAO } from './jwt';
 
 export async function gerarHash(senha: string) {
   return bcrypt.hash(senha, 10);
@@ -16,22 +11,6 @@ export async function gerarHash(senha: string) {
 
 export async function conferirSenha(senha: string, hash: string) {
   return bcrypt.compare(senha, hash);
-}
-
-async function gerarToken(usuarioId: number, sessaoId: number) {
-  return new SignJWT({ usuarioId, sessaoId })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setExpirationTime('30d')
-    .sign(SEGREDO);
-}
-
-async function verificarToken(token: string): Promise<{ usuarioId: number; sessaoId: number } | null> {
-  try {
-    const { payload } = await jwtVerify(token, SEGREDO);
-    return { usuarioId: payload.usuarioId as number, sessaoId: payload.sessaoId as number };
-  } catch {
-    return null;
-  }
 }
 
 // Cria uma sessão no banco + cookie. Use no login e no cadastro.
@@ -49,12 +28,11 @@ export async function criarSessao(
   const token = await gerarToken(usuarioId, sessaoId);
 
   const cookieStore = await cookies();
-  cookieStore.set(NOME_COOKIE, token, {
+  cookieStore.set(NOME_COOKIE_SESSAO, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     path: '/',
-    // "lembrar de mim" = cookie persiste 30 dias; senão, expira ao fechar o navegador
     ...(lembrarDeMim ? { maxAge: 60 * 60 * 24 * 30 } : {}),
   });
 
@@ -64,7 +42,7 @@ export async function criarSessao(
 // Lê o usuário logado, checando se a sessão ainda é válida (não revogada)
 export async function usuarioDaSessao() {
   const cookieStore = await cookies();
-  const token = cookieStore.get(NOME_COOKIE)?.value;
+  const token = cookieStore.get(NOME_COOKIE_SESSAO)?.value;
   if (!token) return null;
 
   const payload = await verificarToken(token);
@@ -76,7 +54,6 @@ export async function usuarioDaSessao() {
   );
   if (resultado.rowCount === 0 || resultado.rows[0].revogada) return null;
 
-  // atualiza o "último uso" sem bloquear a resposta
   pool.query('update sessoes set ultimo_uso = now() where id = $1', [payload.sessaoId]).catch(() => {});
 
   return payload;
@@ -84,14 +61,14 @@ export async function usuarioDaSessao() {
 
 export async function encerrarSessaoAtual() {
   const cookieStore = await cookies();
-  const token = cookieStore.get(NOME_COOKIE)?.value;
+  const token = cookieStore.get(NOME_COOKIE_SESSAO)?.value;
   if (token) {
     const payload = await verificarToken(token);
     if (payload) {
       await pool.query('update sessoes set revogada = true where id = $1', [payload.sessaoId]);
     }
   }
-  cookieStore.delete(NOME_COOKIE);
+  cookieStore.delete(NOME_COOKIE_SESSAO);
 }
 
 export async function registrarAtividade(usuarioId: number, tipo: string, ip: string, detalhe?: string) {
@@ -101,9 +78,4 @@ export async function registrarAtividade(usuarioId: number, tipo: string, ip: st
   );
 }
 
-// Verificação leve de token, sem tocar no banco — usada só no middleware (roda em edge)
-export async function tokenEhValido(token: string): Promise<boolean> {
-  return (await verificarToken(token)) !== null;
-}
-
-export const NOME_COOKIE_SESSAO = NOME_COOKIE;
+export { NOME_COOKIE_SESSAO };

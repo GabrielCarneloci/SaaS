@@ -2,7 +2,7 @@
 // A validação completa (sessão não revogada) acontece em usuarioDaSessao(), chamada
 // dentro das rotas — o middleware só barra quem não tem cookie nenhum.
 import { NextRequest, NextResponse } from 'next/server';
-import { tokenEhValido, NOME_COOKIE_SESSAO } from '@/lib/auth';
+import { tokenEhValido, NOME_COOKIE_SESSAO } from '@/lib/jwt';
 
 export async function middleware(req: NextRequest) {
   if (req.nextUrl.pathname.startsWith('/api/leads/preview')) {
