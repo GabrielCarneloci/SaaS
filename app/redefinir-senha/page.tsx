@@ -1,6 +1,9 @@
 'use client';
 import { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { MolduraAcesso } from '@/components/Moldura';
+import { Botao, Campo, Aviso, Skeleton } from '@/components/ui';
+import { MedidorSenha } from '@/components/MedidorSenha';
 
 function Formulario() {
   const params = useSearchParams();
@@ -34,42 +37,59 @@ function Formulario() {
     }
   }
 
-  if (!token) {
-    return <p className="text-sm" style={{ color: 'var(--danger)' }}>Link inválido.</p>;
-  }
+  if (!token) return <Aviso tom="erro">Link inválido.</Aviso>;
 
   if (sucesso) {
-    return (
-      <div className="px-4 py-3 rounded-lg text-sm" style={{ background: 'var(--accent-wash)', color: 'var(--accent)' }}>
-        Senha redefinida com sucesso! Redirecionando para o login…
-      </div>
-    );
+    return <Aviso tom="ok">Senha redefinida. Levando você para o login…</Aviso>;
   }
 
   return (
     <>
-      <input className="campo mb-3" placeholder="Nova senha" type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
-      <input className="campo mb-4" placeholder="Confirmar nova senha" type="password" value={confirma}
-        onChange={(e) => setConfirma(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && salvar()} />
-      {erro && <p className="text-xs mb-4" style={{ color: 'var(--danger)' }}>{erro}</p>}
-      <button onClick={salvar} disabled={carregando} className="acao">
-        {carregando ? 'Salvando…' : 'Redefinir senha'}
-      </button>
+      <div className="space-y-3.5">
+        <div>
+          <Campo
+            id="nova"
+            rotulo="Nova senha"
+            type="password"
+            autoComplete="new-password"
+            placeholder="Pelo menos 6 caracteres"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+          />
+          <MedidorSenha senha={senha} />
+        </div>
+        <Campo
+          id="confirma"
+          rotulo="Confirmar nova senha"
+          type="password"
+          autoComplete="new-password"
+          placeholder="Repita a senha"
+          value={confirma}
+          onChange={(e) => setConfirma(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && salvar()}
+          erro={confirma && senha !== confirma ? 'As senhas não coincidem' : undefined}
+        />
+      </div>
+
+      {erro && <div className="mt-4"><Aviso tom="erro">{erro}</Aviso></div>}
+
+      <div className="mt-5">
+        <Botao variante="principal" tamanho="g" bloco carregando={carregando} onClick={salvar}>
+          Redefinir senha
+        </Botao>
+      </div>
     </>
   );
 }
 
 export default function RedefinirSenha() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 relative" style={{ background: 'var(--canvas)' }}>
-      <div className="absolute inset-0 papel pointer-events-none" />
-      <div className="w-full max-w-sm p-8 rounded-2xl relative card">
-        <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--ink)' }}>Nova senha</h1>
-        <p className="text-sm mb-6" style={{ color: 'var(--ink-2)' }}>Escolha uma senha forte para sua conta.</p>
-        <Suspense fallback={<p className="text-sm" style={{ color: 'var(--ink-2)' }}>Carregando…</p>}>
-          <Formulario />
-        </Suspense>
-      </div>
-    </div>
+    <MolduraAcesso>
+      <h1 className="t-secao mb-1">Nova senha</h1>
+      <p className="t-corpo mb-5">Escolha uma senha que você não use em outros sites.</p>
+      <Suspense fallback={<Skeleton altura={80} />}>
+        <Formulario />
+      </Suspense>
+    </MolduraAcesso>
   );
 }

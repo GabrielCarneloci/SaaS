@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { MolduraAcesso } from '@/components/Moldura';
+import { Aviso, Skeleton } from '@/components/ui';
 
 function Conteudo() {
   const params = useSearchParams();
@@ -30,35 +32,30 @@ function Conteudo() {
       });
   }, [token]);
 
-  if (status === 'carregando') return <p className="text-sm" style={{ color: 'var(--ink-2)' }}>Processando…</p>;
+  if (status === 'carregando') return <Skeleton altura={50} />;
 
   if (status === 'sucesso') {
     return (
       <>
-        <div className="px-4 py-3 rounded-lg text-sm mb-5" style={{ background: 'var(--ok-wash)', color: 'var(--ok)' }}>
-          Sua conta e todos os leads foram apagados permanentemente.
+        <Aviso tom="ok">Sua conta e os leads salvos foram apagados.</Aviso>
+        <div className="mt-5">
+          <a href="/" className="btn btn-secundario btn-g btn-bloco">Voltar ao início</a>
         </div>
-        <a href="/" className="acao-discreta block text-center" style={{ textDecoration: 'none' }}>Voltar ao início</a>
       </>
     );
   }
 
-  return (
-    <div className="px-4 py-3 rounded-lg text-sm" style={{ background: 'var(--perigo-wash)', color: 'var(--perigo)' }}>
-      {erro}
-    </div>
-  );
+  return <Aviso tom="erro">{erro}</Aviso>;
 }
 
 export default function ConfirmarExclusao() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-6" style={{ background: 'var(--canvas)' }}>
-      <div className="w-full max-w-sm p-8 rounded-2xl card">
-        <h1 className="destaque text-[20px] mb-4" style={{ color: 'var(--ink)' }}>Exclusão de conta</h1>
-        <Suspense fallback={<p className="text-sm">Carregando…</p>}>
-          <Conteudo />
-        </Suspense>
-      </div>
-    </div>
+    <MolduraAcesso>
+      <h1 className="t-secao mb-1">Exclusão de conta</h1>
+      <p className="t-corpo mb-5">Processando o pedido enviado por e-mail.</p>
+      <Suspense fallback={<Skeleton altura={50} />}>
+        <Conteudo />
+      </Suspense>
+    </MolduraAcesso>
   );
 }

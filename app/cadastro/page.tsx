@@ -1,20 +1,9 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-
-function forcaSenha(senha: string): { nivel: number; rotulo: string; cor: string } {
-  if (!senha) return { nivel: 0, rotulo: '', cor: 'var(--line-2)' };
-  let pontos = 0;
-  if (senha.length >= 8) pontos++;
-  if (senha.length >= 12) pontos++;
-  if (/[A-Z]/.test(senha) && /[a-z]/.test(senha)) pontos++;
-  if (/[0-9]/.test(senha)) pontos++;
-  if (/[^A-Za-z0-9]/.test(senha)) pontos++;
-
-  if (pontos <= 1) return { nivel: 1, rotulo: 'Fraca', cor: 'var(--perigo)' };
-  if (pontos <= 3) return { nivel: 2, rotulo: 'Média', cor: 'var(--alerta)' };
-  return { nivel: 3, rotulo: 'Forte', cor: 'var(--ok)' };
-}
+import { MolduraAcesso } from '@/components/Moldura';
+import { Botao, Campo, Aviso } from '@/components/ui';
+import { MedidorSenha } from '@/components/MedidorSenha';
 
 export default function Cadastro() {
   const router = useRouter();
@@ -22,7 +11,6 @@ export default function Cadastro() {
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
-  const forca = forcaSenha(senha);
 
   async function cadastrar() {
     setErro('');
@@ -45,53 +33,52 @@ export default function Cadastro() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 relative" style={{ background: 'var(--canvas)' }}>
-      <div className="w-full max-w-sm p-8 rounded-2xl relative card">
-        <div className="flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--grad-marca)' }}>
-            <span style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>R</span>
-          </div>
-          <span className="destaque" style={{ color: 'var(--ink)' }}>Radar de Leads</span>
-        </div>
+    <MolduraAcesso>
+      <h1 className="t-secao mb-1">Criar uma conta</h1>
+      <p className="t-corpo mb-5">Leva menos de um minuto e não custa nada.</p>
 
-        <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--ink)' }}>Criar conta grátis</h1>
-        <p className="text-sm mb-6" style={{ color: 'var(--ink-2)' }}>Comece a encontrar leads em minutos</p>
-
-        <input className="campo mb-3" placeholder="E-mail" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} />
-
-        <input
-          className="campo mb-1.5"
-          placeholder="Senha (mín. 6 caracteres)"
-          type="password"
-          autoComplete="new-password"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && cadastrar()}
+      <div className="space-y-3.5">
+        <Campo
+          id="email"
+          rotulo="E-mail"
+          type="email"
+          autoComplete="username"
+          placeholder="voce@empresa.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
-        {senha && (
-          <div className="flex items-center gap-2 mb-4">
-            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--line)' }}>
-              <div className="h-full rounded-full transition-all" style={{ width: `${(forca.nivel / 3) * 100}%`, background: forca.cor }} />
-            </div>
-            <span className="text-[11.5px] font-medium shrink-0" style={{ color: forca.cor }}>{forca.rotulo}</span>
-          </div>
-        )}
-        {!senha && <div className="mb-4" />}
-
-        {erro && <p className="text-xs mb-4" style={{ color: 'var(--perigo)' }}>{erro}</p>}
-
-        <button onClick={cadastrar} disabled={carregando} className="acao">
-          {carregando ? 'Criando…' : 'Criar conta'}
-        </button>
-
-        <p className="text-[12px] text-center mt-3 leading-relaxed" style={{ color: 'var(--ink-3)' }}>
-          Você receberá um e-mail para confirmar sua conta.
-        </p>
-
-        <p className="text-sm text-center mt-4" style={{ color: 'var(--ink-2)' }}>
-          Já tem conta? <a href="/login" style={{ color: 'var(--marca-1)', fontWeight: 500 }}>Entrar</a>
-        </p>
+        <div>
+          <Campo
+            id="senha"
+            rotulo="Senha"
+            type="password"
+            autoComplete="new-password"
+            placeholder="Pelo menos 6 caracteres"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && cadastrar()}
+          />
+          <MedidorSenha senha={senha} />
+        </div>
       </div>
-    </div>
+
+      {erro && <div className="mt-4"><Aviso tom="erro">{erro}</Aviso></div>}
+
+      <div className="mt-5">
+        <Botao variante="principal" tamanho="g" bloco carregando={carregando} onClick={cadastrar}>
+          Criar conta
+        </Botao>
+      </div>
+
+      <p className="t-nota text-center mt-3 leading-relaxed">
+        Você receberá um e-mail para confirmar o endereço.
+      </p>
+
+      <hr className="divisor my-5" />
+
+      <p className="t-apoio text-center">
+        Já tem conta? <a href="/login" style={{ color: 'var(--marca-1)', fontWeight: 500 }}>Entrar</a>
+      </p>
+    </MolduraAcesso>
   );
 }

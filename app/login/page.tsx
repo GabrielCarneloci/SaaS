@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { MolduraAcesso } from '@/components/Moldura';
+import { Botao, Campo, Aviso } from '@/components/ui';
 
 export default function Login() {
   const router = useRouter();
@@ -36,44 +38,65 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6 relative" style={{ background: 'var(--canvas)' }}>
-      <div className="w-full max-w-sm p-8 rounded-2xl relative card">
-        <div className="flex items-center gap-2 mb-6">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--grad-marca)' }}>
-            <span style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>R</span>
-          </div>
-          <span className="destaque" style={{ color: 'var(--ink)' }}>Radar de Leads</span>
-        </div>
+    <MolduraAcesso>
+      <h1 className="t-secao mb-1">Entrar na sua conta</h1>
+      <p className="t-corpo mb-5">Acesse os leads que você já encontrou.</p>
 
-        <h1 className="text-xl font-semibold mb-1" style={{ color: 'var(--ink)' }}>Bem-vindo de volta</h1>
-        <p className="text-sm mb-6" style={{ color: 'var(--ink-2)' }}>Entre para acessar seus leads</p>
+      <div className="space-y-3.5">
+        <Campo
+          id="email"
+          rotulo="E-mail"
+          type="email"
+          autoComplete="username"
+          placeholder="voce@empresa.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <Campo
+          id="senha"
+          rotulo="Senha"
+          type="password"
+          autoComplete="current-password"
+          placeholder="Sua senha"
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && entrar()}
+        />
+      </div>
 
-        <input className="campo mb-3" placeholder="E-mail" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input className="campo mb-3" placeholder="Senha" type="password" autoComplete="current-password" value={senha} onChange={(e) => setSenha(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && entrar()} />
+      <label className="flex items-center gap-2 mt-3.5 mb-4 t-apoio cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={lembrar}
+          onChange={(e) => setLembrar(e.target.checked)}
+          style={{ accentColor: 'var(--marca-1)', width: 15, height: 15 }}
+        />
+        Continuar conectado neste dispositivo
+      </label>
 
-        <label className="flex items-center gap-2 mb-4 text-[13px] cursor-pointer" style={{ color: 'var(--ink-2)' }}>
-          <input type="checkbox" checked={lembrar} onChange={(e) => setLembrar(e.target.checked)} style={{ accentColor: 'var(--marca-1)' }} />
-          Lembrar de mim neste dispositivo
-        </label>
-
-        {erro && (
-          <div className="mb-4 px-3 py-2 rounded-lg text-xs" style={{ background: 'var(--perigo-wash)', color: 'var(--perigo)' }}>
+      {erro && (
+        <div className="mb-4">
+          <Aviso tom="erro">
             {erro}
             {precisaReset && (
-              <a href="/esqueci-senha" className="block mt-1 font-semibold underline">Redefinir senha por e-mail →</a>
+              <a href="/esqueci-senha" className="block mt-1 font-semibold underline">
+                Redefinir senha por e-mail
+              </a>
             )}
-          </div>
-        )}
-
-        <button onClick={entrar} disabled={carregando} className="acao">
-          {carregando ? 'Entrando…' : 'Entrar'}
-        </button>
-
-        <div className="flex items-center justify-between mt-5 text-sm">
-          <a href="/esqueci-senha" style={{ color: 'var(--ink-2)' }}>Esqueci a senha</a>
-          <a href="/cadastro" style={{ color: 'var(--marca-1)', fontWeight: 500 }}>Criar conta</a>
+          </Aviso>
         </div>
+      )}
+
+      <Botao variante="principal" tamanho="g" bloco carregando={carregando} onClick={entrar}>
+        Entrar
+      </Botao>
+
+      <hr className="divisor my-5" />
+
+      <div className="flex items-center justify-between t-apoio">
+        <a href="/esqueci-senha" style={{ color: 'var(--ink-2)' }}>Esqueci a senha</a>
+        <a href="/cadastro" style={{ color: 'var(--marca-1)', fontWeight: 500 }}>Criar conta</a>
       </div>
-    </div>
+    </MolduraAcesso>
   );
 }

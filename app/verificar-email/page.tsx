@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { MolduraAcesso } from '@/components/Moldura';
+import { Botao, Aviso, Skeleton } from '@/components/ui';
 
 function Conteudo() {
   const params = useSearchParams();
@@ -30,35 +32,45 @@ function Conteudo() {
       });
   }, [token]);
 
-  if (status === 'carregando') return <p className="text-sm" style={{ color: 'var(--ink-2)' }}>Confirmando…</p>;
+  if (status === 'carregando') {
+    return (
+      <>
+        <Skeleton altura={16} largura="60%" />
+        <div className="h-2" />
+        <Skeleton altura={16} largura="40%" />
+      </>
+    );
+  }
 
   if (status === 'sucesso') {
     return (
       <>
-        <div className="px-4 py-3 rounded-lg text-sm mb-5" style={{ background: 'var(--ok-wash)', color: 'var(--ok)' }}>
-          E-mail confirmado com sucesso!
+        <Aviso tom="ok">E-mail confirmado. Sua conta está liberada.</Aviso>
+        <div className="mt-5">
+          <a href="/dashboard" className="btn btn-principal btn-g btn-bloco">Ir para o painel</a>
         </div>
-        <a href="/dashboard" className="acao block text-center" style={{ textDecoration: 'none' }}>Ir para o painel</a>
       </>
     );
   }
 
   return (
-    <div className="px-4 py-3 rounded-lg text-sm" style={{ background: 'var(--perigo-wash)', color: 'var(--perigo)' }}>
-      {erro}
-    </div>
+    <>
+      <Aviso tom="erro">{erro}</Aviso>
+      <div className="mt-5">
+        <a href="/verifique-seu-email" className="btn btn-secundario btn-g btn-bloco">Pedir um novo link</a>
+      </div>
+    </>
   );
 }
 
 export default function VerificarEmail() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-6" style={{ background: 'var(--canvas)' }}>
-      <div className="w-full max-w-sm p-8 rounded-2xl card">
-        <h1 className="destaque text-[20px] mb-4" style={{ color: 'var(--ink)' }}>Confirmação de e-mail</h1>
-        <Suspense fallback={<p className="text-sm">Carregando…</p>}>
-          <Conteudo />
-        </Suspense>
-      </div>
-    </div>
+    <MolduraAcesso>
+      <h1 className="t-secao mb-1">Confirmação de e-mail</h1>
+      <p className="t-corpo mb-5">Estamos validando o link que você abriu.</p>
+      <Suspense fallback={<Skeleton altura={60} />}>
+        <Conteudo />
+      </Suspense>
+    </MolduraAcesso>
   );
 }
