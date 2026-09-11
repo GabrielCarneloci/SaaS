@@ -29,7 +29,7 @@ function montarContexto(lead: DadosLead): string {
   ].filter(Boolean).join('\n');
 }
 
-async function chamarGemini(prompt: string): Promise<string> {
+async function chamarGemini(prompt: string, tentativa = 1): Promise<string> {
   const chave = process.env.GEMINI_API_KEY;
   if (!chave) throw new Error('GEMINI_API_KEY não configurada');
 
@@ -44,6 +44,12 @@ async function chamarGemini(prompt: string): Promise<string> {
       }),
     }
   );
+
+  // O plano grátis do Gemini às vezes fica sobrecarregado (503) — tenta de novo com espera
+  if ((resposta.status === 503 || resposta.status === 429) && tentativa < 3) {
+    await new Promise((r) => setTimeout(r, tentativa * 1200));
+    return chamarGemini(prompt, tentativa + 1);
+  }
 
   if (!resposta.ok) {
     const erro = await resposta.text();
