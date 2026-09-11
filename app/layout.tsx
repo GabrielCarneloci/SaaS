@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Outfit } from "next/font/google";
 import "./globals.css";
 
@@ -8,6 +8,15 @@ const destaque = Outfit({ subsets: ["latin"], weight: ["600", "700"], variable: 
 export const metadata: Metadata = {
   title: "Radar de Leads",
   description: "Encontre empresas locais que ainda não têm site",
+};
+
+// Sem isso, navegadores de celular renderizam a página como se fosse
+// uma tela larga de desktop e depois encolhem tudo — é a causa mais
+// comum de "layout quebrado" só no mobile.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
 };
 
 const scriptTema = `

@@ -1029,13 +1029,17 @@ function BoasVindas() {
         </p>
       </div>
       <hr className="divisor" />
-      <div className="grid grid-cols-3 divide-x" style={{ borderColor: 'var(--line)' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-3">
         {[
           { titulo: 'Endereço', texto: 'onde a empresa fica' },
           { titulo: 'Telefone', texto: 'contato do Google' },
           { titulo: 'Mensagem', texto: 'rascunho automático' },
-        ].map((b) => (
-          <div key={b.titulo} className="p-4 text-center" style={{ borderColor: 'var(--line)' }}>
+        ].map((b, i) => (
+          <div
+            key={b.titulo}
+            className={`p-4 text-center ${i > 0 ? 'border-t sm:border-t-0 sm:border-l' : ''}`}
+            style={{ borderColor: 'var(--line)' }}
+          >
             <p className="text-[0.8125rem] font-semibold">{b.titulo}</p>
             <p className="t-nota mt-0.5 leading-tight">{b.texto}</p>
           </div>
