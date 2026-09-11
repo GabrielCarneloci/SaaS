@@ -1,23 +1,26 @@
-// Protege rotas: exige login para /dashboard e /admin, e para as APIs de leads
+// Protege rotas: exige cookie de sessão presente para /dashboard, /admin, /perfil e as APIs.
+// A validação completa (sessão não revogada) acontece em usuarioDaSessao(), chamada
+// dentro das rotas — o middleware só barra quem não tem cookie nenhum.
 import { NextRequest, NextResponse } from 'next/server';
-import { verificarToken, NOME_COOKIE_SESSAO } from '@/lib/auth';
+import { tokenEhValido, NOME_COOKIE_SESSAO } from '@/lib/auth';
 
 export async function middleware(req: NextRequest) {
-  // A rota de prévia é pública (mostra resultados mascarados sem login)
   if (req.nextUrl.pathname.startsWith('/api/leads/preview')) {
     return NextResponse.next();
   }
 
   const token = req.cookies.get(NOME_COOKIE_SESSAO)?.value;
-  const sessao = token ? await verificarToken(token) : null;
+  const valido = token ? await tokenEhValido(token) : false;
 
   const rotaProtegida =
     req.nextUrl.pathname.startsWith('/dashboard') ||
     req.nextUrl.pathname.startsWith('/admin') ||
+    req.nextUrl.pathname.startsWith('/perfil') ||
     req.nextUrl.pathname.startsWith('/api/leads') ||
-    req.nextUrl.pathname.startsWith('/api/admin');
+    req.nextUrl.pathname.startsWith('/api/admin') ||
+    req.nextUrl.pathname.startsWith('/api/historico');
 
-  if (rotaProtegida && !sessao) {
+  if (rotaProtegida && !valido) {
     if (req.nextUrl.pathname.startsWith('/api/')) {
       return NextResponse.json({ erro: 'Não autenticado' }, { status: 401 });
     }
@@ -28,5 +31,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/admin/:path*', '/api/leads/:path*', '/api/admin/:path*'],
+  matcher: ['/dashboard/:path*', '/admin/:path*', '/perfil/:path*', '/api/leads/:path*', '/api/admin/:path*', '/api/historico/:path*'],
 };

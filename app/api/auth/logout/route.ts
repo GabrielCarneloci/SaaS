@@ -1,9 +1,8 @@
-// Encerra a sessão
+// Encerra a sessão atual (revoga no banco e limpa o cookie)
 import { NextResponse } from 'next/server';
-import { NOME_COOKIE_SESSAO } from '@/lib/auth';
+import { encerrarSessaoAtual } from '@/lib/auth';
 
 export async function POST() {
-  const resposta = NextResponse.json({ ok: true });
-  resposta.cookies.delete(NOME_COOKIE_SESSAO);
-  return resposta;
+  await encerrarSessaoAtual();
+  return NextResponse.json({ ok: true });
 }

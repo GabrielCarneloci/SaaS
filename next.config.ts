@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
       },
       {
         // Páginas com dados de conta: nunca guardar em cache do navegador
-        source: '/(login|cadastro|esqueci-senha|redefinir-senha|dashboard|admin)',
+        source: '/(login|cadastro|esqueci-senha|redefinir-senha|dashboard|admin|perfil|verifique-seu-email|verificar-email|confirmar-exclusao)',
         headers: [
           { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate' },
         ],

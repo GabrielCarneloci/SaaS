@@ -1,6 +1,8 @@
 // Integração com o Google Gemini (gratuito, plano grátis generoso)
 // Chave em: aistudio.google.com/apikey
-const MODELO = 'gemini-2.0-flash';
+// O nome do modelo muda com frequência — configure via GEMINI_MODEL no .env
+// se a Google descontinuar o atual. Modelo padrão atualizado em set/2026.
+const MODELO = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 
 interface DadosLead {
   nome: string;

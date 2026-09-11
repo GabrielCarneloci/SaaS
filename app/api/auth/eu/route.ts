@@ -8,7 +8,7 @@ export async function GET() {
   if (!sessao) return NextResponse.json({ usuario: null });
 
   const resultado = await pool.query(
-    'select id, email, bloqueado, is_admin from usuarios where id = $1',
+    'select id, email, bloqueado, is_admin, email_verificado from usuarios where id = $1',
     [sessao.usuarioId]
   );
   if (resultado.rowCount === 0) return NextResponse.json({ usuario: null });

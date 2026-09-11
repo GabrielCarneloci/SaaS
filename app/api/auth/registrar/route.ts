@@ -1,18 +1,21 @@
-// Cria uma conta nova
+// Cria uma conta nova, com verificação de e-mail obrigatória
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
 import { pool } from '@/lib/db';
-import { gerarHash, gerarToken, NOME_COOKIE_SESSAO } from '@/lib/auth';
+import { gerarHash, criarSessao, registrarAtividade } from '@/lib/auth';
 import { checarRateLimit, ipDoRequest } from '@/lib/rateLimit';
+import { enviarEmailVerificacao } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   const ip = ipDoRequest(req);
+  const userAgent = req.headers.get('user-agent') || 'desconhecido';
+
   const limite = await checarRateLimit(`registro:${ip}`, 5, 60 * 60);
   if (!limite.permitido) {
     return NextResponse.json({ erro: 'Muitas contas criadas deste IP. Tente mais tarde.' }, { status: 429 });
   }
 
   const { email, senha } = await req.json();
-
   if (!email || !senha || senha.length < 6) {
     return NextResponse.json(
       { erro: 'Informe um e-mail válido e senha com pelo menos 6 caracteres' },
@@ -32,17 +35,22 @@ export async function POST(req: NextRequest) {
       [email, hash]
     );
     const usuarioId = resultado.rows[0].id;
-    const token = await gerarToken(usuarioId);
 
-    const resposta = NextResponse.json({ ok: true });
-    resposta.cookies.set(NOME_COOKIE_SESSAO, token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 60 * 60 * 24 * 30,
-      path: '/',
-    });
-    return resposta;
+    await criarSessao(usuarioId, ip, userAgent, true);
+    await registrarAtividade(usuarioId, 'cadastro', ip);
+
+    // Gera o token de verificação de e-mail e envia
+    const token = crypto.randomBytes(32).toString('hex');
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const expiraEm = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    await pool.query(
+      "insert into tokens_verificacao (usuario_id, tipo, token_hash, expira_em) values ($1, 'email', $2, $3)",
+      [usuarioId, tokenHash, expiraEm]
+    );
+    const link = `${process.env.APP_URL}/verificar-email?token=${token}`;
+    enviarEmailVerificacao(email, link).catch((e) => console.error('Falha ao enviar e-mail de verificação:', e));
+
+    return NextResponse.json({ ok: true });
   } catch (erro) {
     console.error('Erro ao registrar:', erro);
     return NextResponse.json({ erro: 'Falha ao criar conta' }, { status: 500 });

@@ -125,6 +125,10 @@ export default function Dashboard() {
       const res = await fetch('/api/auth/eu');
       const data = await res.json();
       if (data.usuario) {
+        if (!data.usuario.email_verificado) {
+          router.push('/verifique-seu-email');
+          return;
+        }
         setLogado(true);
         setEmailUsuario(data.usuario.email);
         setEhAdmin(data.usuario.is_admin);
@@ -513,6 +517,9 @@ export default function Dashboard() {
                   Painel do administrador
                 </a>
               )}
+              <a href="/perfil" className="block text-[13px] font-medium mb-2.5" style={{ color: 'var(--ink-2)' }}>
+                Sua conta
+              </a>
               <div className="flex items-center justify-between gap-2">
                 <span className="text-[13px] truncate" style={{ color: 'var(--ink-3)' }}>{emailUsuario}</span>
                 <button onClick={sair} className="text-[13px] shrink-0 font-medium" style={{ color: 'var(--ink-2)' }}>
