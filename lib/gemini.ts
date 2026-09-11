@@ -40,7 +40,7 @@ async function chamarGemini(prompt: string, tentativa = 1): Promise<string> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 500 },
+        generationConfig: { temperature: 0.7, maxOutputTokens: 2048 },
       }),
     }
   );
