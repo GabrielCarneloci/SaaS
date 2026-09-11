@@ -253,7 +253,7 @@ export default function Dashboard() {
       setLeads((p) =>
         p.map((l) => (l.id === selecionado ? { ...l, mensagem_ia: data.mensagem, resumo_ia: data.resumo } : l))
       );
-      mostrarAviso(data.doCache ? 'Já tínhamos gerado isso antes' : 'Gerado com IA');
+      mostrarAviso(data.doCache ? 'Mostrando o texto já gerado' : 'Gerado com IA');
     } catch (e: any) {
       mostrarAviso(e.message || 'Não foi possível gerar agora');
     } finally {
@@ -381,15 +381,18 @@ export default function Dashboard() {
   const visitante = logado === false;
 
   const cores = {
-    violeta: tema === 'escuro' ? '#8b84ff' : '#635bff',
-    coral: tema === 'escuro' ? '#f472b6' : '#ec4899',
-    turquesa: tema === 'escuro' ? '#34d399' : '#10b981',
-    ambar: tema === 'escuro' ? '#fbbf24' : '#f59e0b',
-    dim: tema === 'escuro' ? '#6f6d84' : '#8f8e9c',
-    superficie: tema === 'escuro' ? '#15151e' : '#ffffff',
-    linha: tema === 'escuro' ? '#232332' : '#eae8e6',
+    violeta: tema === 'escuro' ? '#60a5fa' : '#2563eb',
+    coral: tema === 'escuro' ? '#93c5fd' : '#60a5fa',
+    turquesa: tema === 'escuro' ? '#34d399' : '#0f9b6c',
+    ambar: tema === 'escuro' ? '#e0a33e' : '#b7791f',
+    dim: tema === 'escuro' ? '#6b7889' : '#8b95a8',
+    superficie: tema === 'escuro' ? '#161d27' : '#ffffff',
+    linha: tema === 'escuro' ? '#232d3a' : '#e6eaf0',
   };
-  const paleta = [cores.violeta, cores.coral, cores.turquesa, cores.ambar, cores.dim];
+  // tons de azul em degradê, do mais escuro ao mais claro, em vez de cores avulsas
+  const paleta = tema === 'escuro'
+    ? ['#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#6b7889']
+    : ['#1d4ed8', '#2563eb', '#3b82f6', '#93c5fd', '#8b95a8'];
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row overflow-x-hidden" style={{ background: 'var(--canvas)' }}>
@@ -544,10 +547,10 @@ export default function Dashboard() {
         {/* números grandes */}
         {leads.length > 0 && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-            <Numero rotulo="empresas sem site" valor={leads.length} cor="var(--marca-1)" icone="🎯" />
-            <Numero rotulo="ainda pendentes" valor={leads.length - contatados} cor="var(--marca-3)" icone="⏳" />
-            <Numero rotulo="já contatadas" valor={contatados} cor="var(--ok)" icone="✅" />
-            <Numero rotulo="nota média" valor={mediaAval} cor="var(--alerta)" icone="⭐" />
+            <Numero rotulo="empresas sem site" valor={leads.length} cor="var(--marca-1)" />
+            <Numero rotulo="ainda pendentes" valor={leads.length - contatados} cor="var(--marca-3)" />
+            <Numero rotulo="já contatadas" valor={contatados} cor="var(--ok)" />
+            <Numero rotulo="nota média" valor={mediaAval} cor="var(--alerta)" />
           </div>
         )}
 
@@ -670,28 +673,28 @@ export default function Dashboard() {
             <div className="absolute -bottom-24 -left-16 w-52 h-52 rounded-full opacity-30" style={{ background: 'var(--marca-2)', filter: 'blur(70px)' }} />
 
             <div className="relative">
-              <span className="etiqueta mb-4 inline-flex">🔎 dados direto do Google Maps</span>
+              <span className="etiqueta mb-4 inline-flex">Dados do Google Maps</span>
               <p className="destaque text-[30px] sm:text-[42px] leading-[1.05] mb-4">
                 <span className="grad-texto">Encontre quem ainda</span>
                 <br />
                 <span style={{ color: 'var(--ink)' }}>não tem site</span>
               </p>
               <p className="text-[14.5px] sm:text-[15.5px] leading-relaxed max-w-[440px] mx-auto mb-8" style={{ color: 'var(--ink-2)' }}>
-                Escolha um nicho e uma cidade ao lado. A gente varre o Google Maps e te entrega
-                só as empresas que ainda não têm presença online — com telefone, endereço e nota.
+                Escolha um nicho e uma cidade ao lado. A busca traz as empresas daquela região
+                que não têm site cadastrado, com telefone, endereço e nota do Google.
               </p>
 
               <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-[480px] mx-auto">
-                <BeneficioMini icone="📍" texto="Endereço real" />
-                <BeneficioMini icone="📞" texto="Telefone direto" />
-                <BeneficioMini icone="✨" texto="Mensagem por IA" />
+                <BeneficioMini titulo="Endereço" texto="onde a empresa fica" />
+                <BeneficioMini titulo="Telefone" texto="contato do Google" />
+                <BeneficioMini titulo="Mensagem" texto="rascunho automático" />
               </div>
             </div>
           </div>
         ) : carregando && leads.length === 0 ? (
           <div className="cartao p-10 text-center max-w-[420px] mx-auto mt-8">
             <p className="text-[14px]" style={{ color: 'var(--ink-2)' }}>
-              Consultando o Google Maps e separando quem ainda não tem site…
+              Buscando no Google Maps…
             </p>
           </div>
         ) : (
@@ -857,7 +860,7 @@ export default function Dashboard() {
               <div className="p-4 rounded-2xl mb-5" style={{ background: 'var(--marca-wash)', border: '1.5px solid var(--line)' }}>
                 <div className="flex items-center justify-between mb-2.5">
                   <span className="text-[12.5px] font-semibold flex items-center gap-1.5" style={{ color: 'var(--marca-1)' }}>
-                    <IconeCentelha /> Gerado com IA
+                    Texto gerado por IA
                   </span>
                   {(leadAtual.mensagem_ia || leadAtual.resumo_ia) && (
                     <button onClick={() => gerarComIA(true)} disabled={gerandoIA} className="text-[11.5px] font-medium" style={{ color: 'var(--marca-1)' }}>
@@ -975,13 +978,7 @@ export default function Dashboard() {
 
 function AvatarEmpresa({ nome }: { nome: string }) {
   // gera uma cor consistente a partir do nome, dentro da paleta da marca
-  const paletaAvatar = [
-    'linear-gradient(135deg, #635bff, #a855f7)',
-    'linear-gradient(135deg, #a855f7, #ec4899)',
-    'linear-gradient(135deg, #ec4899, #f59e0b)',
-    'linear-gradient(135deg, #10b981, #635bff)',
-    'linear-gradient(135deg, #f59e0b, #ec4899)',
-  ];
+  const paletaAvatar = ['#1e40af', '#2563eb', '#3b82f6', '#0369a1', '#475569'];
   let soma = 0;
   for (let i = 0; i < nome.length; i++) soma += nome.charCodeAt(i);
   const fundo = paletaAvatar[soma % paletaAvatar.length];
@@ -989,7 +986,7 @@ function AvatarEmpresa({ nome }: { nome: string }) {
 
   return (
     <div
-      className="shrink-0 w-10 h-10 rounded-xl flex items-center justify-center destaque text-[15px]"
+      className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center destaque text-[14px]"
       style={{ background: fundo, color: '#fff' }}
     >
       {inicial}
@@ -1011,22 +1008,19 @@ function Estrelas({ nota }: { nota: number }) {
   );
 }
 
-function BeneficioMini({ icone, texto }: { icone: string; texto: string }) {
+function BeneficioMini({ titulo, texto }: { titulo: string; texto: string }) {
   return (
-    <div className="flex flex-col items-center gap-1.5 p-3 rounded-xl" style={{ background: 'var(--surface-2)' }}>
-      <span style={{ fontSize: 18 }}>{icone}</span>
-      <span className="text-[11px] font-medium leading-tight text-center" style={{ color: 'var(--ink-2)' }}>{texto}</span>
+    <div className="p-3 rounded-lg text-left" style={{ background: 'var(--surface-2)' }}>
+      <p className="text-[12.5px] font-semibold mb-0.5" style={{ color: 'var(--ink)' }}>{titulo}</p>
+      <p className="text-[11.5px] leading-tight" style={{ color: 'var(--ink-2)' }}>{texto}</p>
     </div>
   );
 }
 
-function Numero({ rotulo, valor, cor, icone }: { rotulo: string; valor: number | string; cor: string; icone?: string }) {
+function Numero({ rotulo, valor, cor }: { rotulo: string; valor: number | string; cor: string }) {
   return (
     <div className="cartao p-4 overflow-hidden min-w-0">
-      <div className="flex items-center gap-2 mb-1">
-        {icone && <span style={{ fontSize: 15 }}>{icone}</span>}
-        <div className="destaque text-[26px] sm:text-[30px] leading-none" style={{ color: cor }}>{valor}</div>
-      </div>
+      <div className="destaque text-[26px] sm:text-[28px] leading-none mb-1" style={{ color: cor }}>{valor}</div>
       <div className="text-[12.5px]" style={{ color: 'var(--ink-2)' }}>{rotulo}</div>
     </div>
   );
@@ -1043,14 +1037,6 @@ function Dado({ rotulo, valor, destaque }: { rotulo: string; valor: string; dest
         {valor}
       </dd>
     </div>
-  );
-}
-
-function IconeCentelha() {
-  return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8L12 2z" />
-    </svg>
   );
 }
 
